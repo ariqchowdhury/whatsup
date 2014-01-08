@@ -23,7 +23,6 @@
 .ch_list {
 	position: relative;
 	top: 10px;
-	text-align: center;
 	width: 50%;
 	margin-left: auto;
 	margin-right: auto;
@@ -38,7 +37,19 @@
 	color: orange;
 }
 
-#section_header {
+.ch_list ul {
+	list-style-type: none;
+	padding-left: 0px;
+}
+
+.channel_info {
+	display: inline;
+	padding: 5px;
+	font-size: 24px;
+	text-align: left;
+}
+
+.channels h1 {
 	text-align: center;
 	font-weight: bold;
 	text-transform: uppercase;
