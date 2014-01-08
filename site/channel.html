@@ -1,15 +1,15 @@
 <!doctype html>
 <html>
 	<head>
-		<title>Channel</title>
-		<link rel="stylesheet" type="text/css" href="../css/head.css"/>
-		<link rel="stylesheet" type="text/css" href="../css/ch_stylesheet.css"/>
+		<title>Channel {{ channel_id }}</title>
+		<link rel="stylesheet" type="text/css" href="{{ static_url("css/head.css") }}"/>
+		<link rel="stylesheet" type="text/css" href="{{ static_url("css/ch_stylesheet.css") }}"/>
 		<script type="text/javascript" src="script.js"></script>
 	</head>
 	<body>
 		<div class="header">
 			<div id="ch_name">
-				Channel Name
+				Channel {{ channel_id }}
 			</div>
 		</div>
 
