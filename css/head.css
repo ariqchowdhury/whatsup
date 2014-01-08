@@ -1,0 +1,13 @@
+body {
+	margin: 0px;
+	font-family: Helvetica, sans-serif;
+	font-size: 14px;
+
+}
+
+.header {
+	background-color: #382F2F;
+	height: 70px;
+	color: #099FBD;
+	font-weight: bold;
+}

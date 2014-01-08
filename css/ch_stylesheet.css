@@ -1,0 +1,45 @@
+#ch_name {
+	position: relative;
+	top: 25px;
+	font-family: Verdana, sans-serif;
+	font-size: 15px;
+	text-align: left;
+	margin-left: 5px;
+}
+
+.messages {
+	border: 1px solid #382F2F;
+	height: 550px;
+	width: 75%;
+	margin-left: 10px;
+	margin-right: auto;
+	margin-top: 10px;
+	margin-bottom: 10px;
+	border-radius: 5px;	
+	float: left;
+
+}
+
+.users {
+	border: 1px solid #382F2F;
+	height: 750px;
+	width: 20%;
+	float: right;
+	margin-right: 10px;
+	margin-top: 10px;
+	border-radius: 5px;	
+}
+
+#comment {
+	margin-top: 10px;
+	display: block;
+	margin-left: 10px;
+	margin-right: auto;
+}
+
+#send {
+	margin-top: 10px;
+	display: block;
+	margin-left: 10px;
+	margin-right: auto;
+}
