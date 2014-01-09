@@ -32,7 +32,7 @@ class ChannelWebSocketHandler(tornado.websocket.WebSocketHandler):
 		self.write_message("New Connection Opened")
 
 	def on_message(self, message):
-		self.write_message("Message Received %s" % message)
+		self.write_message("%s" % message)
 
 	def on_close(self):
 		print "Connection Closed"
