@@ -7,7 +7,8 @@ $(document).ready(function(evt) {
 	ws = new WebSocket("ws://" + host + ":" + port + uri);
 
 	ws.onmessage = function(evt) {
-		$(".messages").append("<p>" + evt.data + "</p>");
+		received_message = JSON.parse(evt.data);
+		$(".messages").append("<p>" + received_message.msg + "</p>");
 	};
 
 	$("#send").click(function() {

@@ -7,6 +7,11 @@ import os.path
 # Server settings
 MAIN_PORT = 8888
 
+# Quick crappy message buffer for development TODO: Make robust buffer for production use
+# Quick crappy client list TODO: Robustify it
+
+clients = []
+
 class HomeHandler(tornado.web.RequestHandler):
 	""" Handler for the homepage.
 	Extends a Tornado RequestHandler.
@@ -29,13 +34,16 @@ class ChannelWebSocketHandler(tornado.websocket.WebSocketHandler):
 	"""
 	def open(self):
 		print "Connection Opened"
-		self.write_message("New Connection Opened")
+		self.write_message({'sender': "server", 'msg': "New Connection Opened"})
+		clients.append(self)
 
 	def on_message(self, message):
-		self.write_message("%s" % message)
+		for client in clients:
+			client.write_message({'msg': "%s" % message})
 
 	def on_close(self):
 		print "Connection Closed"
+		clients.remove(self)
 
 # Handlers and settings passed to web application
 handlers = [
