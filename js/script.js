@@ -6,7 +6,7 @@ $(document).ready(function(evt) {
 
 	ws = new WebSocket("ws://" + host + ":" + port + uri);
 
-	ws.onmessage = function(evt) {alert("message received: " + evt.data)};
+	ws.onmessage = function(evt) {alert(evt.data)};
 
 	$("#send").click(function() {
 		var comment = $("#comment").val();

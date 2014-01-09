@@ -36,7 +36,6 @@ class ChannelWebSocketHandler(tornado.websocket.WebSocketHandler):
 
 	def on_close(self):
 		print "Connection Closed"
-		self.write_message("Connection Closed")
 
 # Handlers and settings passed to web application
 handlers = [
