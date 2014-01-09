@@ -28,13 +28,15 @@ class ChannelWebSocketHandler(tornado.websocket.WebSocketHandler):
 	Extends a WebSocketHandler. 
 	"""
 	def open(self):
-		print "New Connection Opened"
+		print "Connection Opened"
+		self.write_message("New Connection Opened")
 
 	def on_message(self, message):
-		print "Message Received %s" % message
+		self.write_message("Message Received %s" % message)
 
 	def on_close(self):
 		print "Connection Closed"
+		self.write_message("Connection Closed")
 
 # Handlers and settings passed to web application
 handlers = [
