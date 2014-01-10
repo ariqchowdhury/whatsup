@@ -17,6 +17,7 @@ class HomeHandler(tornado.web.RequestHandler):
 	Extends a Tornado RequestHandler.
 	"""
 
+	@tornado.web.addslash
 	def get(self):
 		self.render("home.html")
 
@@ -25,6 +26,7 @@ class ChannelHandler(tornado.web.RequestHandler):
 		Creates a WebSocket connection on entry.
 	"""
 
+	@tornado.web.removeslash
 	def get(self, channel_id):
 		self.render("channel.html", channel_id=channel_id)
 
@@ -38,6 +40,8 @@ class ChannelWebSocketHandler(tornado.websocket.WebSocketHandler):
 		clients.append(self)
 
 	def on_message(self, message):
+		# TODO: write message to buffer
+
 		for client in clients:
 			client.write_message({'msg': "%s" % message})
 
@@ -48,7 +52,8 @@ class ChannelWebSocketHandler(tornado.websocket.WebSocketHandler):
 # Handlers and settings passed to web application
 handlers = [
 	(r"/", HomeHandler),
-	(r"/ch/([0-9]+)", ChannelHandler),
+	(r"/ch/?", HomeHandler), # TODO: This should be handled with a page asking user which channel they meant to go to
+	(r"/ch/([0-9]+/*)", ChannelHandler),
 	(r"/ws", ChannelWebSocketHandler),
 ]
 

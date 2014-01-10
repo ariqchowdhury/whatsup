@@ -6,6 +6,11 @@ $(document).ready(function(evt) {
 
 	ws = new WebSocket("ws://" + host + ":" + port + uri);
 
+	ws.onopen = function(evt) {
+		// send channel name and user name for client list
+		// $("#ch_name").text();
+	}
+
 	ws.onmessage = function(evt) {
 		received_message = JSON.parse(evt.data);
 		$(".messages").append("<p>" + received_message.msg + "</p>");
