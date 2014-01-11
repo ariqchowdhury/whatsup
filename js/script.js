@@ -13,7 +13,10 @@ $(document).ready(function(evt) {
 
 	ws.onmessage = function(evt) {
 		received_message = JSON.parse(evt.data);
+		// Add message to message box
 		$(".messages").append("<p>" + received_message.msg + "</p>");
+		// Scroll to newest message
+		$(".messages").scrollTop($(".messages")[0].scrollHeight);
 	};
 
 	$("#send").click(function() {
