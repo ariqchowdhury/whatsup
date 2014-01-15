@@ -4,6 +4,10 @@
 		<title>Home</title>
 		<link rel="stylesheet" type="text/css" href="{{ static_url("css/head.css") }}"/>
 		<link rel="stylesheet" type="text/css" href="{{ static_url("css/stylesheet.css") }}"/>
+		<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css">
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+		<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+		<script type="text/javascript" src="{{ static_url("js/home.js") }}"></script>
 	</head>
 	<body>
 		<div class="header">
@@ -14,6 +18,20 @@
 				</div>
 			</div>
 
+		</div>
+
+
+		<div id="login">
+			<form action="/" method="post">
+				
+				<div id="login_wrapper">
+					<input type="text" name="username" placeholder="username">
+					<br>
+					<input type="password" name="password" placeholder="password">
+					<br>
+					<input type="submit" id="signin" value="Sign in">
+				</div>
+			</form>
 		</div>
 
 		<div class="channels">
@@ -66,6 +84,8 @@
 				</ul>
 			</div>
 		</div>
+
+		
 
 	</body>
 </html>
