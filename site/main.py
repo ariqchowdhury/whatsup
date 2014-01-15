@@ -2,10 +2,35 @@ import tornado.web
 import tornado.ioloop
 import tornado.websocket
 
+from cassandra import ConsistencyLevel
+from cassandra.cluster import Cluster 
+from cassandra.query import SimpleStatement 
+
 import os.path
+import atexit
 
 # Server settings
 MAIN_PORT = 8888
+# Cassandra settings
+KEYSPACE = "whatsup_dev"
+CASS_IP = '127.0.0.1'
+
+cluster = Cluster([CASS_IP])
+session = cluster.connect()
+session.set_keyspace(KEYSPACE)
+
+try:
+	rows = session.execute("SELECT * FROM users")
+except:
+	print "Cassandra connect failed"
+
+print rows[0]
+
+def exit_handler():
+	session.shutdown()
+
+atexit.register(exit_handler)
+
 
 # Quick crappy message buffer for development TODO: Make robust buffer for production use
 # Quick crappy client list TODO: Robustify it
@@ -48,6 +73,9 @@ class ChannelWebSocketHandler(tornado.websocket.WebSocketHandler):
 	def on_close(self):
 		print "Connection Closed"
 		clients.remove(self)
+
+
+# User authentication handlers:
 
 # Handlers and settings passed to web application
 handlers = [
