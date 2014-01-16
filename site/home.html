@@ -12,27 +12,42 @@
 	<body>
 		<div class="header">
 			<div id ="header_info">
-				<div id="user">
-					Current user
-					<a href="/logout">logout</a>
-				</div>
+				{% if logged_in %}
+					<div class="upper_right_greeting">
+						{{ current_user }}
+						<a href="/logout">signout</a>
+					</div>
+				{% else %}
+					<div class="upper_right_greeting">
+						Sign in or register!
+					</div>
+				{% end %}
 			</div>
 
 		</div>
 
-
-		<div id="login">
-			<form action="/" method="post">
-				
-				<div id="login_wrapper">
-					<input type="text" name="username" placeholder="username">
-					<br>
-					<input type="password" name="password" placeholder="password">
-					<br>
-					<input type="submit" id="signin" value="Sign in">
+		{% if not logged_in %}
+			<div id="right_side_bar">
+				<div id="login">
+					<form action="/" method="post">
+						
+						<div id="login_wrapper">
+							<input type="text" name="username" placeholder="username">
+							<br>
+							<input type="password" name="password" placeholder="password">
+							<br>
+							<input type="submit" id="signin" value="Sign in">
+						</div>
+						{% module xsrf_form_html() %}
+					</form>
 				</div>
-			</form>
-		</div>
+			</div>
+		{% else %}
+			<div id="right_side_bar">
+				<div>Some sort of information</div>
+			</div>
+		{% end %}
+		
 
 		<div class="channels">
 			<h1>Featured</h1>

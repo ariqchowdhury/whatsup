@@ -14,6 +14,8 @@ MAIN_PORT = 8888
 # Cassandra settings
 KEYSPACE = "whatsup_dev"
 CASS_IP = '127.0.0.1'
+# Cookie Consts
+LOGIN_USERNAME = "login_username"
 
 cluster = Cluster([CASS_IP])
 session = cluster.connect()
@@ -37,16 +39,38 @@ atexit.register(exit_handler)
 
 clients = []
 
-class HomeHandler(tornado.web.RequestHandler):
+class BaseHandler(tornado.web.RequestHandler):
+	def get_current_user(self):
+		return self.get_secure_cookie("LOGIN_USERNAME")
+
+class HomeHandler(BaseHandler):
 	""" Handler for the homepage.
 	Extends a Tornado RequestHandler.
 	"""
 
 	@tornado.web.addslash
 	def get(self):
-		self.render("home.html")
+		if self.current_user:
+			self.render("home.html", current_user=self.current_user, logged_in=True)
+		else:
+			self.render("home.html", current_user="", logged_in=False)
 
-class ChannelHandler(tornado.web.RequestHandler):
+	def post(self): 
+		username = self.get_argument("username")
+		#TODO: if the user exists in database and password matches
+		rows = session.execute("SELECT pswd FROM users where user='%s'" % username)
+
+		if not rows:
+			self.redirect("/")
+		else:
+			if (rows[0].pswd == self.get_argument("password")):
+				self.set_secure_cookie("LOGIN_USERNAME", username)
+		
+		
+		self.redirect("/")
+		# if not, do account signup
+
+class ChannelHandler(BaseHandler):
 	""" Renders the html page when a user enters a channel.
 		Creates a WebSocket connection on entry.
 	"""
@@ -77,17 +101,25 @@ class ChannelWebSocketHandler(tornado.websocket.WebSocketHandler):
 
 # User authentication handlers:
 
+class LogoutHandler(BaseHandler):
+	def get(self):
+		self.clear_cookie("LOGIN_USERNAME")
+		self.redirect("/")
+
 # Handlers and settings passed to web application
 handlers = [
 	(r"/", HomeHandler),
 	(r"/ch/?", HomeHandler), # TODO: This should be handled with a page asking user which channel they meant to go to
 	(r"/ch/([0-9]+/*)", ChannelHandler),
 	(r"/ws", ChannelWebSocketHandler),
+	(r"/logout", LogoutHandler),
 ]
 
 settings = {
 	"debug": True,
 	"static_path":os.path.join(os.path.dirname(__file__), "../"),
+	"cookie_secret": "Thisabovealltothineownselfbetrue",
+	"xsrf_cookies": True,
 }
 
 application = tornado.web.Application(handlers, **settings)
