@@ -23,6 +23,8 @@ $(document).ready(function(evt) {
 		SendMessage(ws);
 	})
 
+	$("#send").button();
+
 	$(document).keydown(function(event) {
 		// If key pressed is 'enter'
 		if (event.keyCode == 13 && !event.shiftKey) {
