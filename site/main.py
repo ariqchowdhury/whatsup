@@ -60,7 +60,7 @@ class HomeHandler(BaseHandler):
 	def get(self):
 
 		# populate list of featured events
-		rows = session.execute("SELECT title, tag, start FROM channels WHERE dmy='2014-01-17' ORDER BY start");
+		rows = session.execute("SELECT title, tag, start, url, dmy FROM channels WHERE dmy='2014-01-17' ORDER BY start");
 		featured_list = rows
 
 		all_list = rows[:10]
@@ -71,9 +71,9 @@ class HomeHandler(BaseHandler):
 
 
 		if self.current_user:
-			self.render("home.html", current_user=self.current_user, logged_in=True)
+			self.render("home.html", current_user=self.current_user, logged_in=True, flist=featured_list, alist=all_list)
 		else:
-			self.render("home.html", current_user="", logged_in=False)	
+			self.render("home.html", current_user="", logged_in=False, flist=featured_list, alist=all_list)	
 
 class ChannelHandler(BaseHandler):
 	""" Renders the html page when a user enters a channel.

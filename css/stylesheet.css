@@ -46,7 +46,6 @@
 }
 
 .channel_info {
-	display: inline;
 	padding: 5px;
 	font-size: 24px;
 	text-align: left;
@@ -57,6 +56,11 @@
 	font-weight: bold;
 	text-transform: uppercase;
 	margin-bottom: 10px;
+}
+
+#channel_time {
+	display: inline-block;
+	float: right;
 }
 
 h1 {

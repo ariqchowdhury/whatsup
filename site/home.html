@@ -76,49 +76,28 @@
 			<h1>Featured</h1>
 			<div class="ch_list">
 				<ul>
-					<li>
-						<ul>
-							<li class="channel_info"><a href="#">test_a</a></li>
-							<li class="channel_info">Time</li>
-						</ul>
-					</li>
-					<li>
-						<ul>
-							<li class="channel_info"><a href="#">test_b</a></li>
-							<li class="channel_info">Time</li>
-						</ul>
-					</li>
-				<ul>
+					{% for ch in flist %}
+						<li class="channel_info">
+							<div id="channel_listing_wrapper">
+								<a href={{ "ch/"+ch.url }}>{{ ch.title.replace("2014", "") }}</a>
+								<div id="channel_time">{{ ch.start.time() }}</div>
+							</div>
+						</li>
+					{% end %}
+				</ul>
 			</div>
 			<br />
 			<h1>All</h1>
 			<div class="ch_list">
 				<ul>
-					<li>
-						<ul>
-							<li class="channel_info"><a href="#">test_1</a></li>
-							<li class="channel_info">Time</li>
-						</ul>
-					</li>
-					<li>
-						<ul>
-							<li class="channel_info"><a href="#">test_2</a></li>
-							<li class="channel_info">Time</li>
-						</ul>
-					</li>
-					<li>
-						<ul>
-							<li class="channel_info"><a href="#">test_3</a></li>
-							<li class="channel_info">Time</li>
-						</ul>
-					</li>
-					<li>
-						<ul>
-							<li class="channel_info"><a href="#">test_4</a></li>
-							<li class="channel_info">Time</li>
-						</ul>
-					</li>
-
+					{% for ch in alist %}
+						<li class="channel_info">
+							<div id="channel_listing_wrapper">
+								<a href={{ "ch/"+ch.url }}>{{ ch.title }}</a>
+								<div id="channel_time">{{ ch.start.time() }}</div>
+							</div>
+						</li>
+					{% end %}
 				</ul>
 			</div>
 		</div>
