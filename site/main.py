@@ -47,6 +47,17 @@ atexit.register(exit_handler)
 
 clients = []
 
+
+def uuid_to_url(ch_id):
+	return ch_id.bytes.encode('base_64').rstrip('=\n').replace('/', '_').replace('+', "-")
+
+def url_to_uuid(url):
+	missing_padding = 4 - len(url) % 4
+	if missing_padding:
+		url += b'=' * missing_padding
+
+	return uuid.UUID(bytes=url.replace('_', '/').replace('-', '+').decode('base_64'))	 
+
 class BaseHandler(tornado.web.RequestHandler):
 	def get_current_user(self):
 		return self.get_secure_cookie("LOGIN_USERNAME")
@@ -69,7 +80,6 @@ class HomeHandler(BaseHandler):
 
 		# generate urls for the events as well
 
-
 		if self.current_user:
 			self.render("home.html", current_user=self.current_user, logged_in=True, flist=featured_list, alist=all_list)
 		else:
@@ -81,8 +91,29 @@ class ChannelHandler(BaseHandler):
 	"""
 
 	@tornado.web.removeslash
-	def get(self, channel_id):
-		self.render("channel.html", channel_id=channel_id)
+	def get(self, url):
+		if self.current_user:
+			logged_in = True
+		else:
+			logged_in = False
+
+		# convert url (which is in channel_id) to the channel uuid and get the actual title
+		
+		try:
+			ch_id = url_to_uuid(url)
+		except ValueError:
+			# This exception is raised if the url length is incorrect for the url decode
+			# This likely means user entered their own url, so just go to does not exist
+			ch_id = url
+			rows = None
+		else:
+			rows = session.execute("SELECT title from channels_by_id WHERE id=%s" % ch_id)
+
+		if not rows:
+			self.write("Channel does not exist")
+		else:
+			channel_title = rows[0].title
+			self.render("channel.html", channel_id=channel_title, logged_in=logged_in)
 
 class ChannelWebSocketHandler(tornado.websocket.WebSocketHandler):
 	""" Handler for a channel room.
@@ -140,7 +171,7 @@ class RegisterHandler(BaseHandler):
 
 		if not rows:
 			# insert user/pass into database
-			salt = os.urandom(16).encode('base_64').replace("=", "").replace("\n", "")
+			salt = os.urandom(16).encode('base_64').rstrip('=\n')
 			hash = pwd_context.encrypt(salt + self.get_argument("password"))
 
 			session.execute("INSERT INTO users (user, salt, pswd) VALUES ('%s', '%s', '%s');" % (username, salt, hash))
@@ -160,7 +191,7 @@ class CreateChannelHandler(BaseHandler):
 		hour = self.get_argument("hour")
 		user = self.current_user
 		ch_id = uuid.uuid4()
-		url = ch_id.bytes.encode('base_64').rstrip('=\n').replace('/', '_').replace('+', "AC")
+		url = uuid_to_url(ch_id)
 		
 		#timestamp will just use cassandra getdate(now())
 		# Need to insert into all channel column families, see: db_sechma for columns
@@ -183,7 +214,7 @@ class CreateChannelHandler(BaseHandler):
 handlers = [
 	(r"/", HomeHandler),
 	(r"/ch/?", HomeHandler), # TODO: This should be handled with a page asking user which channel they meant to go to
-	(r"/ch/([0-9]+/*)", ChannelHandler),
+	(r"/ch/([A-Za-z0-9\_]+/*)", ChannelHandler),
 	(r"/ws", ChannelWebSocketHandler),
 	(r"/CreateChannel", CreateChannelHandler),
 	(r"/login", LoginHandler),
