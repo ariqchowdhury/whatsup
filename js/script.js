@@ -25,6 +25,9 @@ $(document).ready(function(evt) {
 
 	$("#send").button();
 
+	$("#send_disabled").button();
+	$("#send_disabled").button('option', 'disabled', true);
+
 	$(document).keydown(function(event) {
 		// If key pressed is 'enter'
 		if (event.keyCode == 13 && !event.shiftKey) {

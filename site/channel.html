@@ -24,8 +24,13 @@
 
 		</div>
 
-		<textarea id="comment" placeholder="default text" cols=50 rows=5></textarea>
-      	<input type="submit" id="send" value="send"/>
+		{% if logged_in %}	      	
+	      	<textarea id="comment" placeholder="default text" cols=50 rows=5></textarea>
+	      	<input type="submit" id="send" value="send"/>
+	    {% else %}		    
+		    <textarea id="comment" placeholder="Sign in to submit message" cols=50 rows=5></textarea>
+		    <input type="submit" id="send_disabled" value="send"/>
+		{% end %}
 
 	</body>
 </html>
