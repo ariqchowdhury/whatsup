@@ -8,6 +8,7 @@ from cassandra.query import SimpleStatement
 
 import os.path
 import atexit
+import uuid
 
 # Server settings
 MAIN_PORT = 8888
@@ -50,6 +51,11 @@ class HomeHandler(BaseHandler):
 
 	@tornado.web.addslash
 	def get(self):
+
+		# populate list of featured events
+		# populate list of next 10 events
+		# generate urls for the events as well
+
 		if self.current_user:
 			self.render("home.html", current_user=self.current_user, logged_in=True)
 		else:
@@ -100,10 +106,35 @@ class ChannelWebSocketHandler(tornado.websocket.WebSocketHandler):
 
 
 # User authentication handlers:
-
 class LogoutHandler(BaseHandler):
 	def get(self):
 		self.clear_cookie("LOGIN_USERNAME")
+		self.redirect("/")
+
+# Create channels:
+class CreateChannelHandler(BaseHandler):
+	def post(self):
+		title = self.get_argument("title")
+		tag = self.get_argument("tag")
+		length = self.get_argument("length")
+		dmy = self.get_argument("start_date")
+		hour = self.get_argument("hour")
+		user = self.current_user
+		ch_id = uuid.uuid4()
+		
+		#timestamp will just use cassandra getdate(now())
+		# Need to insert into all channel column families, see: db_sechma for columns
+
+		session.execute("INSERT INTO channels (id, dmy, start, ts, len, user, title, tag) VALUES \
+			(%s, '%s', '%s', dateof(now()), %s, '%s', '%s', '%s');" % \
+			(ch_id, dmy, dmy+" "+hour, length, user, title, tag))
+
+		session.execute("INSERT INTO channels_by_id (id, dmy, start, ts, len, user, title, tag) VALUES \
+			(%s, '%s', '%s', dateof(now()), %s, '%s', '%s', '%s');" % \
+			(ch_id, dmy, dmy+" "+hour, length, user, title, tag))
+
+		session.execute("INSERT INTO user_channel_index (user, ch_id) VALUES ('%s', %s);" % (user, ch_id))
+
 		self.redirect("/")
 
 # Handlers and settings passed to web application
@@ -112,6 +143,7 @@ handlers = [
 	(r"/ch/?", HomeHandler), # TODO: This should be handled with a page asking user which channel they meant to go to
 	(r"/ch/([0-9]+/*)", ChannelHandler),
 	(r"/ws", ChannelWebSocketHandler),
+	(r"/CreateChannel", CreateChannelHandler),
 	(r"/logout", LogoutHandler),
 ]
 
