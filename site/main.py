@@ -60,8 +60,15 @@ class HomeHandler(BaseHandler):
 	def get(self):
 
 		# populate list of featured events
+		rows = session.execute("SELECT title, tag, start FROM channels WHERE dmy='2014-01-17' ORDER BY start");
+		featured_list = rows
+
+		all_list = rows[:10]
+
 		# populate list of next 10 events
+
 		# generate urls for the events as well
+
 
 		if self.current_user:
 			self.render("home.html", current_user=self.current_user, logged_in=True)
@@ -153,17 +160,20 @@ class CreateChannelHandler(BaseHandler):
 		hour = self.get_argument("hour")
 		user = self.current_user
 		ch_id = uuid.uuid4()
+		url = ch_id.bytes.encode('base_64').rstrip('=\n').replace('/', '_').replace('+', "AC")
 		
 		#timestamp will just use cassandra getdate(now())
 		# Need to insert into all channel column families, see: db_sechma for columns
 
-		session.execute("INSERT INTO channels (id, dmy, start, ts, len, user, title, tag) VALUES \
-			(%s, '%s', '%s', dateof(now()), %s, '%s', '%s', '%s');" % \
-			(ch_id, dmy, dmy+" "+hour, length, user, title, tag))
+		session.execute("""
+			INSERT INTO channels (id, dmy, start, ts, len, user, title, tag, url)
+			VALUES (%s, '%s', '%s', dateof(now()), %s, '%s', '%s', '%s', '%s');
+			""" % (ch_id, dmy, dmy+" "+hour, length, user, title, tag, url))
 
-		session.execute("INSERT INTO channels_by_id (id, dmy, start, ts, len, user, title, tag) VALUES \
-			(%s, '%s', '%s', dateof(now()), %s, '%s', '%s', '%s');" % \
-			(ch_id, dmy, dmy+" "+hour, length, user, title, tag))
+		session.execute("""
+			INSERT INTO channels_by_id (id, dmy, start, ts, len, user, title, tag, url)
+			VALUES (%s, '%s', '%s', dateof(now()), %s, '%s', '%s', '%s', '%s');
+			""" % (ch_id, dmy, dmy+" "+hour, length, user, title, tag, url))
 
 		session.execute("INSERT INTO user_channel_index (user, ch_id) VALUES ('%s', %s);" % (user, ch_id))
 
