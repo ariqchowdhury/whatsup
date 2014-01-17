@@ -6,6 +6,8 @@ from cassandra import ConsistencyLevel
 from cassandra.cluster import Cluster 
 from cassandra.query import SimpleStatement 
 
+from passlib.context import CryptContext
+
 import os.path
 import atexit
 import uuid
@@ -22,12 +24,17 @@ cluster = Cluster([CASS_IP])
 session = cluster.connect()
 session.set_keyspace(KEYSPACE)
 
+pwd_context = CryptContext (
+	schemes=["pbkdf2_sha256"],
+	default="pbkdf2_sha256",
+	pbkdf2_sha256__default_rounds = 24000,
+)
+
 try:
 	rows = session.execute("SELECT * FROM users")
 except:
 	print "Cassandra connect failed"
 
-print rows[0]
 
 def exit_handler():
 	session.shutdown()
@@ -59,22 +66,7 @@ class HomeHandler(BaseHandler):
 		if self.current_user:
 			self.render("home.html", current_user=self.current_user, logged_in=True)
 		else:
-			self.render("home.html", current_user="", logged_in=False)
-
-	def post(self): 
-		username = self.get_argument("username")
-		#TODO: if the user exists in database and password matches
-		rows = session.execute("SELECT pswd FROM users where user='%s'" % username)
-
-		if not rows:
-			self.redirect("/")
-		else:
-			if (rows[0].pswd == self.get_argument("password")):
-				self.set_secure_cookie("LOGIN_USERNAME", username)
-		
-		
-		self.redirect("/")
-		# if not, do account signup
+			self.render("home.html", current_user="", logged_in=False)	
 
 class ChannelHandler(BaseHandler):
 	""" Renders the html page when a user enters a channel.
@@ -111,6 +103,46 @@ class LogoutHandler(BaseHandler):
 		self.clear_cookie("LOGIN_USERNAME")
 		self.redirect("/")
 
+class LoginHandler(BaseHandler):
+	def post(self):
+		username = self.get_argument("username")
+		#TODO: if the user exists in database and password matches
+		rows = session.execute("SELECT salt, pswd FROM users where user='%s'" % username)
+
+		# username = username+salt;
+		# hash(username)
+
+		if rows:
+			if pwd_context.verify(rows[0].salt+self.get_argument("password"), rows[0].pswd):
+				self.set_secure_cookie("LOGIN_USERNAME", username)
+			else:
+				print "incorrect password"
+		else:
+			print "user doesn't exist"
+			
+		
+		
+		self.redirect("/")
+		# if not, do account signup
+
+class RegisterHandler(BaseHandler):
+	def post(self):
+		username = self.get_argument("username")
+		# insert user info into database, if user does not already exist
+		rows = session.execute("SELECT * FROM users where user='%s'" % username)
+
+		if not rows:
+			# insert user/pass into database
+			salt = os.urandom(16).encode('base_64').replace("=", "").replace("\n", "")
+			hash = pwd_context.encrypt(salt + self.get_argument("password"))
+
+			session.execute("INSERT INTO users (user, salt, pswd) VALUES ('%s', '%s', '%s');" % (username, salt, hash))
+		else:
+			# set some variable to show username taken
+			print "Username taken"
+
+		self.redirect("/")
+
 # Create channels:
 class CreateChannelHandler(BaseHandler):
 	def post(self):
@@ -144,6 +176,8 @@ handlers = [
 	(r"/ch/([0-9]+/*)", ChannelHandler),
 	(r"/ws", ChannelWebSocketHandler),
 	(r"/CreateChannel", CreateChannelHandler),
+	(r"/login", LoginHandler),
+	(r"/register", RegisterHandler),
 	(r"/logout", LogoutHandler),
 ]
 

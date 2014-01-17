@@ -29,14 +29,14 @@
 		{% if not logged_in %}
 			<div id="right_side_bar">
 				<div id="login">
-					<form action="/" method="post">
-						
+					<form method="post">						
 						<div id="login_wrapper">
 							<input type="text" name="username" placeholder="username">
 							<br>
 							<input type="password" name="password" placeholder="password">
 							<br>
 							<input type="submit" id="signin" value="Sign in">
+							<input type="submit" id="register" value="Register">
 						</div>
 						{% module xsrf_form_html() %}
 					</form>
