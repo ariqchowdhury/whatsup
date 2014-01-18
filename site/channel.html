@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
 	<head>
-		<title>Channel {{ channel_id }}</title>
+		<title>{{ channel_title }}</title>
 		<link rel="stylesheet" type="text/css" href="{{ static_url("css/head.css") }}"/>
 		<link rel="stylesheet" type="text/css" href="{{ static_url("css/ch_stylesheet.css") }}"/>
 		<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css">
@@ -12,7 +12,10 @@
 	<body>
 		<div class="header">
 			<div id="ch_name">
-				{{ channel_id }}
+				{{ channel_title }}
+			</div>
+			<div hidden id="ch_id">
+				{{ ch_id }}
 			</div>
 		</div>
 

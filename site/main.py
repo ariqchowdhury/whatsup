@@ -11,6 +11,7 @@ from passlib.context import CryptContext
 import os.path
 import atexit
 import uuid
+import json
 
 # Server settings
 MAIN_PORT = 8888
@@ -45,8 +46,7 @@ atexit.register(exit_handler)
 # Quick crappy message buffer for development TODO: Make robust buffer for production use
 # Quick crappy client list TODO: Robustify it
 
-clients = []
-
+channel_client_hash = {}
 
 def uuid_to_url(ch_id):
 	return ch_id.bytes.encode('base_64').rstrip('=\n').replace('/', '_').replace('+', "-")
@@ -97,8 +97,6 @@ class ChannelHandler(BaseHandler):
 		else:
 			logged_in = False
 
-		# convert url (which is in channel_id) to the channel uuid and get the actual title
-		
 		try:
 			ch_id = url_to_uuid(url)
 		except ValueError:
@@ -113,7 +111,7 @@ class ChannelHandler(BaseHandler):
 			self.write("Channel does not exist")
 		else:
 			channel_title = rows[0].title
-			self.render("channel.html", channel_id=channel_title, logged_in=logged_in)
+			self.render("channel.html", channel_title=channel_title, logged_in=logged_in, ch_id=ch_id)
 
 class ChannelWebSocketHandler(tornado.websocket.WebSocketHandler):
 	""" Handler for a channel room.
@@ -122,17 +120,32 @@ class ChannelWebSocketHandler(tornado.websocket.WebSocketHandler):
 	def open(self):
 		print "Connection Opened"
 		self.write_message({'sender': "server", 'msg': "New Connection Opened"})
-		clients.append(self)
 
 	def on_message(self, message):
 		# TODO: write message to buffer
 
-		for client in clients:
-			client.write_message({'msg': "%s" % message})
+		received_obj = json.loads(message)
+
+		if received_obj['type'] == 'init':
+			
+			ch_key = received_obj['msg']
+
+			if ch_key in channel_client_hash:
+				channel_client_hash[ch_key].append(self)
+			else:
+				channel_client_hash[ch_key] = [self]
+		elif received_obj['type'] == 'msg':
+			for client in channel_client_hash[received_obj['src']]:
+				client.write_message({'msg': "%s" % received_obj['msg']})
+		elif received_obj['type'] == 'close':
+			ch_key = received_obj['msg']
+
+			channel_client_hash[ch_key].remove(self)
+		else:
+			raise Exception("received type from websocket is invalid")
 
 	def on_close(self):
 		print "Connection Closed"
-		clients.remove(self)
 
 
 # User authentication handlers:

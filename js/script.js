@@ -1,14 +1,16 @@
 $(document).ready(function(evt) {
 	var ws;
-	var host = "localhost"
-	var port = "8888"
-	var uri = "/ws"
-
+	var host = "localhost";
+	var port = "8888";
+	var uri = "/ws";
+	
 	ws = new WebSocket("ws://" + host + ":" + port + uri);
+
 
 	ws.onopen = function(evt) {
 		// send channel name and user name for client list
 		// $("#ch_name").text();
+		SendInitMessage(ws);
 	}
 
 	ws.onmessage = function(evt) {
@@ -18,6 +20,10 @@ $(document).ready(function(evt) {
 		// Scroll to newest message
 		$(".messages").scrollTop($(".messages")[0].scrollHeight);
 	};
+
+	ws.onclose = function(evt) {
+		SendCloseMessage(ws);
+	}
 
 	$("#send").click(function() {
 		SendMessage(ws);
@@ -39,6 +45,37 @@ $(document).ready(function(evt) {
 // This function sends the text from the 'comment' textarea across the websocket
 function SendMessage(websocket) {
 	var comment = $("#comment").val();
-	websocket.send(comment);
+	var id = $("#ch_id").text();
+
+	var msg = {
+		type: 'msg',
+		src: id, 
+		msg: comment
+	}
+
+	websocket.send(JSON.stringify(msg));
 	$("#comment").val('');
+}
+
+function SendInitMessage(websocket) {
+	var id = $("#ch_id").text();
+
+	var msg = {
+		type: 'init', 
+		msg: id
+	}
+
+	websocket.send(JSON.stringify(msg));
+
+}
+
+function SendCloseMessage(websocket) {
+	var id = $("#ch_id").text();
+
+	var msg = {
+		type: 'close', 
+		msg: id
+	}
+
+	websocket.send(JSON.stringify(msg));
 }
