@@ -117,6 +117,9 @@ class ChannelWebSocketHandler(tornado.websocket.WebSocketHandler):
 	""" Handler for a channel room.
 	Extends a WebSocketHandler. 
 	"""
+
+	ch_id = None
+
 	def open(self):
 		print "Connection Opened"
 		self.write_message({'sender': "server", 'msg': "New Connection Opened"})
@@ -127,8 +130,9 @@ class ChannelWebSocketHandler(tornado.websocket.WebSocketHandler):
 		received_obj = json.loads(message)
 
 		if received_obj['type'] == 'init':
-			
+			 
 			ch_key = received_obj['msg']
+			self.ch_id = ch_key
 
 			if ch_key in channel_client_hash:
 				channel_client_hash[ch_key].append(self)
@@ -138,14 +142,15 @@ class ChannelWebSocketHandler(tornado.websocket.WebSocketHandler):
 			for client in channel_client_hash[received_obj['src']]:
 				client.write_message({'msg': "%s" % received_obj['msg']})
 		elif received_obj['type'] == 'close':
+			print "CLOSE MESSAGE RECEIVED"
 			ch_key = received_obj['msg']
-
 			channel_client_hash[ch_key].remove(self)
 		else:
 			raise Exception("received type from websocket is invalid")
 
 	def on_close(self):
 		print "Connection Closed"
+		channel_client_hash[self.ch_id].remove(self)
 
 
 # User authentication handlers:
