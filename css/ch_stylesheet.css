@@ -26,6 +26,7 @@
 	border-radius: 3px;
 	margin: 1px;
 	display: inline-block;
+	white-space: pre-wrap;
 }
 
 #message_post_user {

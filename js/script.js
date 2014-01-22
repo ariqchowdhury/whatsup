@@ -34,7 +34,7 @@ $(document).ready(function(evt) {
 	$("#send_disabled").button();
 	$("#send_disabled").button('option', 'disabled', true);
 
-	$(document).keydown(function(event) {
+	$(document).keypress(function(event) {
 		// If key pressed is 'enter'
 		if (event.keyCode == 13 && !event.shiftKey) {
 			SendMessage(ws);
@@ -43,9 +43,10 @@ $(document).ready(function(evt) {
 })
 
 function AppendMessage(data) {
-	var html_message = "<div class='message_post'>" + 
+	var html_message =  "<div class='message_post_wrapper'>" +
+						"<div class='message_post'>" + 
 						"<div id='message_post_user'>" +
-						data.user + ":" +
+						data.user +
 						"</div>" +
 						"<div id='message_post_ts'>" +
 						data.ts +
@@ -53,6 +54,7 @@ function AppendMessage(data) {
 						"<div id='message_post_msg'>" +
 						data.msg +
 						"</div>" + 
+						"</div>" +
 						"</div>";
 
 	$("#messages").append(html_message);
