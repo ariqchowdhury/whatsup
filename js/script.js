@@ -37,6 +37,7 @@ $(document).ready(function(evt) {
 	$(document).keypress(function(event) {
 		// If key pressed is 'enter'
 		if (event.keyCode == 13 && !event.shiftKey) {
+			event.preventDefault();
 			SendMessage(ws);
 		}
 	})
