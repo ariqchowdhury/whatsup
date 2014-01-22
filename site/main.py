@@ -252,6 +252,7 @@ settings = {
 	"static_path":os.path.join(os.path.dirname(__file__), "../"),
 	"cookie_secret": "Thisabovealltothineownselfbetrue",
 	"xsrf_cookies": True,
+	"gzip": True,
 }
 
 application = tornado.web.Application(handlers, **settings)
