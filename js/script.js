@@ -14,11 +14,11 @@ $(document).ready(function(evt) {
 	}
 
 	ws.onmessage = function(evt) {
-		received_message = JSON.parse(evt.data);
+		data = JSON.parse(evt.data);
 		// Add message to message box
-		$(".messages").append("<p>" + received_message.msg + "</p>");
+		AppendMessage(data);
 		// Scroll to newest message
-		$(".messages").scrollTop($(".messages")[0].scrollHeight);
+		$("#messages").scrollTop($("#messages")[0].scrollHeight);
 	};
 
 	ws.onclose = function(evt) {
@@ -42,14 +42,32 @@ $(document).ready(function(evt) {
 	})
 })
 
+function AppendMessage(data) {
+	var html_message = "<div class='message_post'>" + 
+						"<div id='message_post_user'>" +
+						data.user + ":" +
+						"</div>" +
+						"<div id='message_post_ts'>" +
+						data.ts +
+						"</div>" +
+						"<div id='message_post_msg'>" +
+						data.msg +
+						"</div>" + 
+						"</div>";
+
+	$("#messages").append(html_message);
+}
+
 // This function sends the text from the 'comment' textarea across the websocket
 function SendMessage(websocket) {
 	var comment = $("#comment").val();
 	var id = $("#ch_id").text();
+	var user = $("#user").text();
 
 	var msg = {
 		type: 'msg',
 		src: id, 
+		user: user,
 		msg: comment
 	}
 

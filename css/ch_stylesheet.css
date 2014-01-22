@@ -7,7 +7,7 @@
 	margin-left: 5px;
 }
 
-.messages {
+#messages {
 	border: 1px solid #382F2F;
 	height: 550px;
 	width: 75%;
@@ -21,7 +21,28 @@
 
 }
 
-.users {
+.message_post {
+	border: 1px solid black;
+	border-radius: 3px;
+	margin: 1px;
+	display: inline-block;
+}
+
+#message_post_user {
+	color: blue;
+	font-weight: bold;
+}
+
+#message_post_ts {
+	color: orange;
+	font-style: italic;
+}
+
+#message_post_msg {
+	color: black;
+}
+
+#users {
 	border: 1px solid #382F2F;
 	height: 750px;
 	width: 20%;

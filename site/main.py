@@ -12,6 +12,7 @@ import os.path
 import atexit
 import uuid
 import json
+import datetime
 
 # Server settings
 MAIN_PORT = 8888
@@ -111,7 +112,7 @@ class ChannelHandler(BaseHandler):
 			self.write("Channel does not exist")
 		else:
 			channel_title = rows[0].title
-			self.render("channel.html", channel_title=channel_title, logged_in=logged_in, ch_id=ch_id)
+			self.render("channel.html", channel_title=channel_title, logged_in=logged_in, ch_id=ch_id, user=self.current_user)
 
 class ChannelWebSocketHandler(tornado.websocket.WebSocketHandler):
 	""" Handler for a channel room.
@@ -139,8 +140,14 @@ class ChannelWebSocketHandler(tornado.websocket.WebSocketHandler):
 			else:
 				channel_client_hash[ch_key] = [self]
 		elif received_obj['type'] == 'msg':
+			# Get a timestamp
+			now = datetime.datetime.now()
+			date = now.date()
+			time = now.time()
+			ts = datetime.datetime.combine(date, time) # Need this for the db entry
+
 			for client in channel_client_hash[received_obj['src']]:
-				client.write_message({'msg': "%s" % received_obj['msg']})
+				client.write_message({'msg': "%s" % received_obj['msg'], 'user': "%s" % received_obj['user'], 'ts': "%s" % time})
 		elif received_obj['type'] == 'close':
 			print "CLOSE MESSAGE RECEIVED"
 			ch_key = received_obj['msg']
