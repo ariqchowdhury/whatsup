@@ -8,8 +8,6 @@ $(document).ready(function(evt) {
 
 
 	ws.onopen = function(evt) {
-		// send channel name and user name for client list
-		// $("#ch_name").text();
 		SendInitMessage(ws);
 	}
 
@@ -29,11 +27,6 @@ $(document).ready(function(evt) {
 		SendMessage(ws);
 	})
 
-	$("#send").button();
-
-	$("#send_disabled").button();
-	$("#send_disabled").button('option', 'disabled', true);
-
 	$(document).keypress(function(event) {
 		// If key pressed is 'enter'
 		if (event.keyCode == 13 && !event.shiftKey) {
@@ -41,6 +34,7 @@ $(document).ready(function(evt) {
 			SendMessage(ws);
 		}
 	})
+
 })
 
 function AppendMessage(data) {
