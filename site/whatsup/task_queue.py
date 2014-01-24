@@ -8,6 +8,10 @@ from cassandra import ConsistencyLevel
 from cassandra.cluster import Cluster 
 from cassandra.query import SimpleStatement
 
+# Enums for the order of objects in rows
+class DecodeGenerateFrontpage:
+	title, tag, start, url, dmy = range(5)
+
 # Cassandra settings
 KEYSPACE = "whatsup_dev"
 CASS_IP = '127.0.0.1'
@@ -17,16 +21,6 @@ app = Celery('whatsup', backend='amqp://guest@localhost', broker='amqp://guest@l
 
 CELERY_ACCEPT_CONTENT = ['pickle']
 CELERY_TASK_SERIALIZER = ['pickle']
-
-# class MsgBufferTask(Task):
-# 	abstract = True
-# 	_channel_client_hash = None
-
-# 	@property 
-# 	def cch(self):
-# 		if self._channel_client_hash is None:
-# 			self._channel_client_hash = channel_client_hash
-# 		return self._channel_client_hash
 
 class DatabaseTask(Task):
 	abstract = True
@@ -39,12 +33,9 @@ class DatabaseTask(Task):
 			self._db.set_keyspace(KEYSPACE)
 		return self._db
 
-@app.task
-def write_to_clients(ts, user, msg, src, time):
-	print user
 
 @app.task(base=DatabaseTask)
-def write_to_db(ts, user, msg, src, time, comment_id):
+def write_to_db(user, msg, src, comment_id):
 	
 	write_to_db.db.execute("""
 		INSERT INTO comment (id, user, data, score, ts)
@@ -56,7 +47,16 @@ def write_to_db(ts, user, msg, src, time, comment_id):
 		VALUES (%s, %s);
 		""" % (comment_id, src))
 
+@app.task(base=DatabaseTask)
+def generate_frontpage(date):
+	rows = generate_frontpage.db.execute("SELECT title, tag, start, url, dmy FROM channels WHERE dmy='%s' ORDER BY start;" % date)
+	
+	myrows = []
 
+	for row in rows:
+	  mylist=[]
+	  myrows.append(mylist)
+	  for datum in row:
+	    mylist.append(datum)
 
-# for client in channel_client_hash[src]:
-		# client.write_message({'msg': "%s" % msg, 'user': "%s" % user, 'ts': "%s" % time})
+	return myrows

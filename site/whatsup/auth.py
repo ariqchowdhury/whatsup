@@ -20,9 +20,6 @@ class LoginHandler(whatsup.core.BaseHandler):
 		#TODO: if the user exists in database and password matches
 		rows = user_password_check(username)
 
-		# username = username+salt;
-		# hash(username)
-
 		if rows:
 			if pwd_context.verify(rows[0].salt+self.get_argument("password"), rows[0].pswd):
 				self.set_secure_cookie("LOGIN_USERNAME", username)

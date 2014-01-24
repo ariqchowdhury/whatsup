@@ -2,7 +2,6 @@ from whatsup.db import session
 from whatsup.db import get_title_from_chid
 from whatsup.db import create_channel
 
-from whatsup.task_queue import write_to_clients
 from whatsup.task_queue import write_to_db
 
 import whatsup.core
@@ -81,12 +80,12 @@ class ChannelWebSocketHandler(tornado.websocket.WebSocketHandler):
 				channel_client_hash[ch_key].append(self)
 			else:
 				channel_client_hash[ch_key] = [self]
+
 		elif received_obj['type'] == 'msg':
 			# Get a timestamp
 			now = datetime.datetime.now()
 			date = now.date()
 			time = now.time()
-			ts = datetime.datetime.combine(date, time) # Need this for the db entry
 
 			msg = received_obj['msg']
 			user = received_obj['user']
@@ -94,11 +93,11 @@ class ChannelWebSocketHandler(tornado.websocket.WebSocketHandler):
 
 			comment_id = uuid.uuid4()
 
-			# write_to_clients.delay(ts, user, msg, src, time)
-			write_to_db.delay(ts, user, msg, src, time, comment_id)
+			write_to_db.delay(user, msg, src, comment_id)
 
-			# for client in channel_client_hash[received_obj['src']]:
-			# 	client.write_message({'msg': "%s" % received_obj['msg'], 'user': "%s" % received_obj['user'], 'ts': "%s" % time})
+			for client in channel_client_hash[received_obj['src']]:
+				client.write_message({'msg': "%s" % received_obj['msg'], 'user': "%s" % received_obj['user'], 'ts': "%s" % time})
+
 		elif received_obj['type'] == 'close':
 			print "CLOSE MESSAGE RECEIVED"
 			ch_key = received_obj['msg']
