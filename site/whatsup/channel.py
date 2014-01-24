@@ -50,7 +50,7 @@ class ChannelHandler(whatsup.core.BaseHandler):
 			self.write("Channel does not exist")
 		else:
 			channel_title = rows[0].title
-			self.render(PATH_TO_SITE+CHANNEL_PAGE, channel_title=channel_title, logged_in=logged_in, ch_id=ch_id, user=self.current_user)
+			self.render(PATH_TO_SITE+CHANNEL_PAGE, channel_title=channel_title, logged_in=logged_in, ch_id=ch_id)
 
 class ChannelWebSocketHandler(tornado.websocket.WebSocketHandler):
 	""" Handler for a channel room.

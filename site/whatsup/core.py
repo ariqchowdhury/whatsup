@@ -30,6 +30,6 @@ class HomeHandler(BaseHandler):
 		# generate urls for the events as well
 
 		if self.current_user:
-			self.render(PATH_TO_SITE + HOMEPAGE, current_user=self.current_user, logged_in=True, flist=featured_list, alist=all_list)
+			self.render(PATH_TO_SITE + HOMEPAGE, logged_in=True, flist=featured_list, alist=all_list)
 		else:
-			self.render(PATH_TO_SITE + HOMEPAGE, current_user="", logged_in=False, flist=featured_list, alist=all_list)	
+			self.render(PATH_TO_SITE + HOMEPAGE, logged_in=False, flist=featured_list, alist=all_list)	
