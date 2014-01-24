@@ -2,41 +2,43 @@
 <html>
 	<head>
 		<title>{{ channel_title }}</title>
-		<link rel="stylesheet" type="text/css" href="{{ static_url("css/head.css") }}"/>
-		<link rel="stylesheet" type="text/css" href="{{ static_url("css/ch_stylesheet.css") }}"/>
-		<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css">
-		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-		<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
-		<script type="text/javascript" src="{{ static_url("js/script.js") }}"></script>
+		<link rel="stylesheet" type="text/css" href="{{ static_url("css/bootstrap.min.css") }}"/>	
+		<link rel="stylesheet" type="text/css" href="{{ static_url("css/ch_stylesheet.css") }}"/>		
 	</head>
 	<body>
-		<div class="header">
-			<div id="ch_name">
-				{{ channel_title }}
+		<div hidden id="ch_id">
+			{{ ch_id }}
+		</div>
+		<div hidden id="user">
+			{{ user }}
+		</div>
+
+		{% module Template("header.html", logged_in=logged_in) %}
+
+
+		<div class="container messages">
+			<div class="row messages">
+				<div class="well col-md-10 messages" id="messages">	
+					
+				</div>
+
 			</div>
-			<div hidden id="ch_id">
-				{{ ch_id }}
-			</div>
-			<div hidden id="user">
-				{{ user }}
+
+			<div class="row">
+				{% if logged_in %}	      	
+			      	<textarea id="comment" placeholder="default text" cols=50 rows=5></textarea>
+			      	<button class="btn btn-primary btn-xs" type="submit" id="send">Send</button>
+			    {% else %}		    
+				    <textarea id="comment" placeholder="Sign in to submit message" cols=50 rows=5></textarea>
+				    <button class="btn btn-primary btn-xs" type="submit" id="send" disabled="disabled">Send</button>
+				{% end %}
 			</div>
 		</div>
 
-		<div id="messages">
-			
-		</div>
 
-		<div id="users">
-
-		</div>
-
-		{% if logged_in %}	      	
-	      	<textarea id="comment" placeholder="default text" cols=50 rows=5></textarea>
-	      	<input type="submit" id="send" value="send"/>
-	    {% else %}		    
-		    <textarea id="comment" placeholder="Sign in to submit message" cols=50 rows=5></textarea>
-		    <input type="submit" id="send_disabled" value="send"/>
-		{% end %}
-
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+		<!-- // <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script> -->
+		<script type="text/javascript" src="{{ static_url("js/script.js") }}"></script>
+		<script type="text/javascript" src="{{ static_url("js/bootstrap.min.js") }}"></script>
 	</body>
 </html>
