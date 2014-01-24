@@ -12,12 +12,6 @@ import atexit
 # Server settings
 MAIN_PORT = 8888
 
-try:
-	rows = session.execute("SELECT * FROM users")
-except:
-	print "Cassandra connect failed"
-
-
 def exit_handler():
 	session.shutdown()
 

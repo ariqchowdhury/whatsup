@@ -1,5 +1,8 @@
 from whatsup.password import pwd_context
 from whatsup.db import session
+from whatsup.db import user_password_check
+from whatsup.db import is_user_in_db
+from whatsup.db import insert_user_into_db
 
 import whatsup.core
 
@@ -15,7 +18,7 @@ class LoginHandler(whatsup.core.BaseHandler):
 	def post(self):
 		username = self.get_argument("username")
 		#TODO: if the user exists in database and password matches
-		rows = session.execute("SELECT salt, pswd FROM users where user='%s'" % username)
+		rows = user_password_check(username)
 
 		# username = username+salt;
 		# hash(username)
@@ -34,15 +37,17 @@ class LoginHandler(whatsup.core.BaseHandler):
 class RegisterHandler(whatsup.core.BaseHandler):
 	def post(self):
 		username = self.get_argument("username")
-		# insert user info into database, if user does not already exist
-		rows = session.execute("SELECT * FROM users where user='%s'" % username)
 
+		# Check if user already exists in database
+		rows = is_user_in_db(username)
+
+		# If not, insert into database, else report username taken
 		if not rows:
 			# insert user/pass into database
 			salt = os.urandom(16).encode('base_64').rstrip('=\n')
 			hash = pwd_context.encrypt(salt + self.get_argument("password"))
 
-			session.execute("INSERT INTO users (user, salt, pswd) VALUES ('%s', '%s', '%s');" % (username, salt, hash))
+			insert_user_into_db(username, salt, hash)
 		else:
 			# set some variable to show username taken
 			print "Username taken"

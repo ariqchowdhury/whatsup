@@ -1,4 +1,6 @@
 from whatsup.db import session
+from whatsup.db import get_title_from_chid
+from whatsup.db import create_channel
 
 import whatsup.core
 import tornado.web
@@ -44,7 +46,7 @@ class ChannelHandler(whatsup.core.BaseHandler):
 			ch_id = url
 			rows = None
 		else:
-			rows = session.execute("SELECT title from channels_by_id WHERE id=%s" % ch_id)
+			rows = get_title_from_chid(ch_id)
 
 		if not rows:
 			self.write("Channel does not exist")
@@ -53,8 +55,7 @@ class ChannelHandler(whatsup.core.BaseHandler):
 			self.render(PATH_TO_SITE+CHANNEL_PAGE, channel_title=channel_title, logged_in=logged_in, ch_id=ch_id)
 
 class ChannelWebSocketHandler(tornado.websocket.WebSocketHandler):
-	""" Handler for a channel room.
-	Extends a WebSocketHandler. 
+	""" Handler for a channel room. 
 	"""
 
 	ch_id = None
@@ -113,16 +114,6 @@ class CreateChannelHandler(whatsup.core.BaseHandler):
 		#timestamp will just use cassandra getdate(now())
 		# Need to insert into all channel column families, see: db_sechma for columns
 
-		session.execute("""
-			INSERT INTO channels (id, dmy, start, ts, len, user, title, tag, url)
-			VALUES (%s, '%s', '%s', dateof(now()), %s, '%s', '%s', '%s', '%s');
-			""" % (ch_id, dmy, dmy+" "+hour, length, user, title, tag, url))
-
-		session.execute("""
-			INSERT INTO channels_by_id (id, dmy, start, ts, len, user, title, tag, url)
-			VALUES (%s, '%s', '%s', dateof(now()), %s, '%s', '%s', '%s', '%s');
-			""" % (ch_id, dmy, dmy+" "+hour, length, user, title, tag, url))
-
-		session.execute("INSERT INTO user_channel_index (user, ch_id) VALUES ('%s', %s);" % (user, ch_id))
+		create_channel(title, tag, length, dmy, hour, user, ch_id, url)
 
 		self.redirect("/")

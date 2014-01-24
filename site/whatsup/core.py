@@ -1,6 +1,7 @@
 import tornado.web
 
 from whatsup.db import session
+from whatsup.db import read_events_for_frontpage
 
 PATH_TO_SITE = "../"
 HOMEPAGE = "home.html"
@@ -19,8 +20,8 @@ class HomeHandler(BaseHandler):
 	@tornado.web.addslash
 	def get(self):
 
-		# populate list of featured events
-		rows = session.execute("SELECT title, tag, start, url, dmy FROM channels WHERE dmy='2014-01-17' ORDER BY start");
+		# populate list of featured events 
+		rows = read_events_for_frontpage('2014-01-17')
 		featured_list = rows
 
 		all_list = rows[:HOME_NUM_EVENTS_TO_DISPLAY]
