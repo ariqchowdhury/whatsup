@@ -3,8 +3,7 @@ from whatsup.db import get_title_from_chid
 from whatsup.db import create_channel
 
 from whatsup.task_queue import write_to_clients
-from whatsup.core import channel_client_hash
-from whatsup.task_queue import test_task
+from whatsup.task_queue import write_to_db
 
 import whatsup.core
 import tornado.web
@@ -16,6 +15,8 @@ import datetime
 
 PATH_TO_SITE = "../"
 CHANNEL_PAGE = "channel.html"
+
+channel_client_hash = {}
 
 def uuid_to_url(ch_id):
 	return ch_id.bytes.encode('base_64').rstrip('=\n').replace('/', '_').replace('+', "-")
@@ -91,13 +92,10 @@ class ChannelWebSocketHandler(tornado.websocket.WebSocketHandler):
 			user = received_obj['user']
 			src = received_obj['src']
 
-			# write_to_clients(user, msg, src, time)
-			# write_to_clients.delay(user, msg, src, time)
-			# retval = test_task.delay()
-			# print retval.ready()
+			comment_id = uuid.uuid4()
 
-			# if retval.ready():
-				# print retval.get()
+			# write_to_clients.delay(ts, user, msg, src, time)
+			write_to_db.delay(ts, user, msg, src, time, comment_id)
 
 			# for client in channel_client_hash[received_obj['src']]:
 			# 	client.write_message({'msg': "%s" % received_obj['msg'], 'user': "%s" % received_obj['user'], 'ts': "%s" % time})
