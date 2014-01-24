@@ -8,43 +8,6 @@
 	</head>
 
 	<body>
-		<!-- <nav class="navbar navbar-default navbar-static-top" role="navigation">
-			<div class="container">
-				<div class="navbar-header">
-					<a class="navbar-brand" href="/">Whatsup</a>
-				</div>
-
-				<ul class="nav navbar-nav">
-					<li><a href="/">Home</a></li>
-					<li><a href="#">About</a></li>
-				</ul>
-
-				{% if logged_in %}
-					<ul class="nav navbar-nav navbar-right">
-						<li class="dropdown">
-							<a href="#" class="dropdown-toggle" data-toggle="dropdown"> {{ current_user }} <b class="caret"></b></a>
-							<ul class="dropdown-menu">
-								<li><a href="#">Profile</a></li>
-					            <li class="divider"></li>
-					            <li><a href="/logout">Signout</a></li>
-							</ul>
-						</li>
-					</ul>
-				{% else %}
-					<form class="navbar-form navbar-right" role="form" action="/login" method="post">
-						<div class="form-group">
-							<input type="text" name="username" placeholder="Username" class="form-control" required>
-						</div>
-						<div class="form-group">
-							<input type="password" name="password" placeholder="Password" class="form-control" required>
-						</div>
-						<button class="btn btn-primary" type="submit" id="signin">Sign in</button>
-						{% module xsrf_form_html() %}
-					</form>
-				{% end %}
-
-			</div>
-		</nav> -->
 
 		{% module Template("header.html", logged_in=logged_in) %}
 
@@ -53,21 +16,22 @@
 		<div class="container">
 			<div class="row">
 				<div class="col-md-8">
-
-					{% for ch in flist %}
-						<div class="panel panel-default">
-							<div class="panel-heading"><h4>Featured</h4></div>
+					
+					<div class="panel panel-default">
+						<div class="panel-heading"><h4>Featured</h4></div>
+						{% for ch in flist %}
 							<a href={{ "ch/"+ch.url}} class="list-group-item">
 								<h4 class="list-group-item-heading">{{ ch.title.replace("2014", "") }}</h4>
 								<span class="badge">{{ ch.start.time() }}</span>
 								<p class="list-group-item-text">DESCRIPTION</p>
 								<span class="label label-default">#{{ch.tag}}</span>
 							</a>
-						</div>
-					{% end %}
+						{% end %}
+					</div>					
 
 				</div>
 
+				{% if logged_in %}
 				<div class="col-md-offset-1 col-md-3 panel panel-default">
 					<div class="panel-body">
 						<form  action="/CreateChannel" method="post" role="form">
@@ -99,22 +63,24 @@
 						</form>
 					</div>
 				</div>
+				{% end %}
+
 			</div> <!-- row -->
 
 			<div class="row">
 				<div class="col-md-8">
 
-					{% for ch in flist %}
-						<div class="panel panel-default">
-							<div class="panel-heading"><h4>All</h4></div>
+					<div class="panel panel-default">
+						<div class="panel-heading"><h4>All</h4></div>
+						{% for ch in flist %}
 							<a href={{ "ch/"+ch.url}} class="list-group-item">
 								<h4 class="list-group-item-heading">{{ ch.title.replace("2014", "") }}</h4>
 								<span class="badge">{{ ch.start.time() }}</span>
 								<p class="list-group-item-text">DESCRIPTION</p>
 								<span class="label label-default">#{{ch.tag}}</span>
 							</a>
-						</div>
-					{% end %}
+						{% end %}
+					</div>				
 
 				</div>
 			</div> <!-- row -->
