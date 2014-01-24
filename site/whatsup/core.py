@@ -8,6 +8,8 @@ HOMEPAGE = "home.html"
 
 HOME_NUM_EVENTS_TO_DISPLAY = 10
 
+channel_client_hash = {}
+
 class BaseHandler(tornado.web.RequestHandler):
 	def get_current_user(self):
 		return self.get_secure_cookie("LOGIN_USERNAME")
