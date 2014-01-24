@@ -2,11 +2,8 @@
 <html>
 	<head>
 		<title>{{ channel_title }}</title>
-		<link rel="stylesheet" type="text/css" href="../css/bootstrap.min.css">	
-		<!-- <link rel="stylesheet" type="text/css" href="{{ static_url("css/ch_stylesheet.css") }}"/> -->
-		<link rel="stylesheet" type="text/css" href="../css/ch_stylesheet.css"/>
-		<!-- <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css"> -->
-		
+		<link rel="stylesheet" type="text/css" href="{{ static_url("css/bootstrap.min.css") }}"/>	
+		<link rel="stylesheet" type="text/css" href="{{ static_url("css/ch_stylesheet.css") }}"/>		
 	</head>
 	<body>
 		<div hidden id="ch_id">
@@ -16,7 +13,7 @@
 			{{ user }}
 		</div>
 
-		<nav class="navbar navbar-default navbar-static-top" role="navigation">
+		<!-- <nav class="navbar navbar-default navbar-static-top" role="navigation">
 			<div class="container">
 				<div class="navbar-header">
 					<a class="navbar-brand" href="#">Whatsup</a>
@@ -46,11 +43,13 @@
 						<input type="password" name="password" placeholder="Password" class="form-control" required>
 					</div>
 					<button class="btn btn-primary" type="submit" id="signin">Sign in</button>
-					<!-- {% module xsrf_form_html() %} -->
+					{% module xsrf_form_html() %}
 				</form>
 
 			</div>
-		</nav>
+		</nav> -->
+
+		{% module Template("header.html", logged_in=logged_in) %}
 
 
 		<div class="container messages">
@@ -75,7 +74,7 @@
 
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 		<!-- // <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script> -->
-		<!-- // <script type="text/javascript" src="{{ static_url("js/script.js") }}"></script> -->
-		<script type="text/javascript" src="../js/script.js></script>
+		<script type="text/javascript" src="{{ static_url("js/script.js") }}"></script>
+		<script type="text/javascript" src="{{ static_url("js/bootstrap.min.js") }}"></script>
 	</body>
 </html>
