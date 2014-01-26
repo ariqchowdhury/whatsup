@@ -10,6 +10,7 @@ cluster = Cluster([CASS_IP])
 session = cluster.connect()
 session.set_keyspace(KEYSPACE)
 
+#DEPRECATED -- replaced by task_queue.generate_frontpage
 def read_events_for_frontpage(date):
 	return session.execute("SELECT title, tag, start, url, dmy FROM channels WHERE dmy='%s' ORDER BY start;" % date);
 
