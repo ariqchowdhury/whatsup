@@ -1,0 +1,2 @@
+class Cookies:
+	LoginUsername = "cryhavokandletslipthedogsofwar"

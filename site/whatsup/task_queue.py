@@ -38,7 +38,7 @@ class DatabaseTask(Task):
 			self._db.set_keyspace(KEYSPACE)
 		return self._db
 
-def sanitize_cass_rows(cass_rows):
+def SanitizeCassRows(cass_rows):
 	myrows = []
 
 	for row in cass_rows:
@@ -65,13 +65,26 @@ def write_to_db(user, msg, src, comment_id):
 @app.task(base=DatabaseTask)
 def generate_frontpage(date):
 	rows = generate_frontpage.db.execute("SELECT title, tag, start, url, dmy FROM channels WHERE dmy='%s' ORDER BY start;" % date)
-	return sanitize_cass_rows(rows)
+	return SanitizeCassRows(rows)
 
 @app.task(base=DatabaseTask)
 def get_hashed_pswd(username):
 	rows = get_hashed_pswd.db.execute("SELECT salt, pswd FROM users where user='%s'" % username)
-	return sanitize_cass_rows(rows)
+	return SanitizeCassRows(rows)
 
 @app.task
 def verify_password(salted_pswd, hashed_pswd):
 	return pwd_context.verify(salted_pswd, hashed_pswd)
+
+@app.task
+def EncryptPassword(salted_pswd):
+	return pwd_context.encrypt(salted_pswd)
+
+@app.task(base=DatabaseTask)
+def DoesUserExist(username):
+	rows = DoesUserExist.db.execute("SELECT * FROM users where user='%s'" % username)
+	return SanitizeCassRows(rows)
+
+@app.task(base=DatabaseTask)
+def AddUser(username, salt, hash, email):
+	AddUser.db.execute("INSERT INTO users (user, salt, pswd, email) VALUES ('%s', '%s', '%s', '%s');" % (username, salt, hash, email))

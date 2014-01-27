@@ -61,6 +61,25 @@
 						</form>
 					</div>
 				</div>
+				{% else %}
+				<div class="col-md-offset-1 col-md-3 panel panel-default">
+					<div class="panel-body">
+						<h4>New? Register</h4>
+						<form  action="/register" method="post" role="form">
+							<div class="form-group">
+								<input type="text" name="username" placeholder="Username">
+							</div>
+							<div class="form-group">
+								<input type="password" name="password" placeholder="Password">
+							</div>
+							<div class="form-group">
+								<input type="text" name="email" placeholder="Your Email">
+							</div>
+							<button class="btn btn-success" type="Submit" id="create_ch">Register</button>
+							{% module xsrf_form_html() %}
+						</form>
+					</div>
+				</div>
 				{% end %}
 
 			</div> <!-- row -->
