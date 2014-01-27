@@ -1,14 +1,14 @@
 import tornado.web
 from tornado import gen
 
-from whatsup.password import pwd_context
 from whatsup.db import session
-from whatsup.db import user_password_check
 from whatsup.db import is_user_in_db
 from whatsup.db import insert_user_into_db
 
 from whatsup.task_queue import get_hashed_pswd
 from whatsup.task_queue import DecodeGetHashedPswd
+
+from whatsup.task_queue import verify_password
 
 import whatsup.core
 
@@ -30,12 +30,12 @@ class LoginHandler(whatsup.core.BaseHandler):
 		username = self.get_argument("username")
 
 		response = yield gen.Task(get_hashed_pswd.apply_async, args=[username])
-		# rows = user_password_check(username)
 
 		rows = response.result
 
 		if rows:
-			if pwd_context.verify(rows[0][decode.salt]+self.get_argument("password"), rows[0][decode.pswd]):
+			verified = yield gen.Task(verify_password.apply_async, args=[rows[0][decode.salt]+self.get_argument("password"), rows[0][decode.pswd]])
+			if verified.result == True:
 				self.set_secure_cookie("LOGIN_USERNAME", username)
 			else:
 				print "incorrect password"

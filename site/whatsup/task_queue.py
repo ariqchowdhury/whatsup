@@ -8,6 +8,8 @@ from cassandra import ConsistencyLevel
 from cassandra.cluster import Cluster 
 from cassandra.query import SimpleStatement
 
+from whatsup.password import pwd_context
+
 # Enums for the order of objects in rows
 class DecodeGenerateFrontpage:
 	title, tag, start, url, dmy = range(5)
@@ -70,3 +72,6 @@ def get_hashed_pswd(username):
 	rows = get_hashed_pswd.db.execute("SELECT salt, pswd FROM users where user='%s'" % username)
 	return sanitize_cass_rows(rows)
 
+@app.task
+def verify_password(salted_pswd, hashed_pswd):
+	return pwd_context.verify(salted_pswd, hashed_pswd)
