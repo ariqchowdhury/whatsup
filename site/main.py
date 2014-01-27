@@ -1,21 +1,14 @@
 import tornado.web
 import tornado.ioloop
 
-from whatsup.db import session
 import whatsup.core
 import whatsup.auth
 import whatsup.channel
 
 import os.path
-import atexit
 
 # Server settings
 MAIN_PORT = 8888
-
-def exit_handler():
-	session.shutdown()
-
-atexit.register(exit_handler)
 
 # Handlers and settings passed to web application
 handlers = [

@@ -3,10 +3,6 @@ from tornado import gen
 
 from os import urandom
 
-from whatsup.db import session
-from whatsup.db import is_user_in_db
-from whatsup.db import insert_user_into_db
-
 from whatsup.task_queue import get_hashed_pswd
 from whatsup.task_queue import DecodeGetHashedPswd
 
@@ -65,8 +61,6 @@ class RegisterHandler(whatsup.core.BaseHandler):
 			# insert user/pass into database
 			email = self.get_argument("email")
 			salt = urandom(16).encode('base_64').rstrip('=\n')
-			# hash = pwd_context.encrypt(salt + self.get_argument("password"))
-
 			hash = yield gen.Task(EncryptPassword.apply_async, args=[salt+self.get_argument("password")])
 			
 			yield gen.Task(AddUser.apply_async, args=[username, salt, hash.result, email])
