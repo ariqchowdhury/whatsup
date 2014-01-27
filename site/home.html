@@ -15,7 +15,7 @@
 			<div class="row">
 				<div class="col-md-8">
 					
-					<div class="panel panel-default">
+					<div class="panel panel-primary">
 						<div class="panel-heading"><h4>Featured</h4></div>
 						{% for ch in flist %}
 							<a href={{ "ch/"+ch[decode.url]}} class="list-group-item">
@@ -30,7 +30,7 @@
 				</div>
 
 				{% if logged_in %}
-				<div class="col-md-offset-1 col-md-3 panel panel-default">
+				<div class="col-md-offset-1 col-md-3 panel panel-primary">
 					<div class="panel-body">
 						<form  action="/CreateChannel" method="post" role="form">
 							<div class="form-group">
@@ -62,7 +62,7 @@
 					</div>
 				</div>
 				{% else %}
-				<div class="col-md-offset-1 col-md-3 panel panel-default">
+				<div class="col-md-offset-1 col-md-3 panel panel-primary">
 					<div class="panel-body">
 						<h4>New? Register</h4>
 						<form  action="/register" method="post" role="form">
@@ -87,7 +87,7 @@
 			<div class="row">
 				<div class="col-md-8">
 
-					<div class="panel panel-default">
+					<div class="panel panel-primary">
 						<div class="panel-heading"><h4>All</h4></div>
 						{% for ch in flist %}
 							<a href={{ "ch/"+ch[decode.url]}} class="list-group-item">

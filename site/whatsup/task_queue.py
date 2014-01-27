@@ -17,6 +17,9 @@ class DecodeGenerateFrontpage:
 class DecodeGetHashedPswd:
 	salt, pswd = range(2)
 
+class DecodeGetChannelTitleFromId:
+	title = 0
+
 # Cassandra settings
 KEYSPACE = "whatsup_dev"
 CASS_IP = '127.0.0.1'
@@ -63,6 +66,20 @@ def write_to_db(user, msg, src, comment_id):
 		""" % (comment_id, src))
 
 @app.task(base=DatabaseTask)
+def CreateChannel(title, tag, length, dmy, hour, user, ch_id, url):
+	CreateChannel.db.execute("""
+			INSERT INTO channels (id, dmy, start, ts, len, user, title, tag, url)
+			VALUES (%s, '%s', '%s', dateof(now()), %s, '%s', '%s', '%s', '%s');
+			""" % (ch_id, dmy, dmy+" "+hour, length, user, title, tag, url))
+
+	CreateChannel.db.execute("""
+		INSERT INTO channels_by_id (id, dmy, start, ts, len, user, title, tag, url)
+		VALUES (%s, '%s', '%s', dateof(now()), %s, '%s', '%s', '%s', '%s');
+		""" % (ch_id, dmy, dmy+" "+hour, length, user, title, tag, url))
+
+	CreateChannel.db.execute("INSERT INTO user_channel_index (user, ch_id) VALUES ('%s', %s);" % (user, ch_id))
+
+@app.task(base=DatabaseTask)
 def generate_frontpage(date):
 	rows = generate_frontpage.db.execute("SELECT title, tag, start, url, dmy FROM channels WHERE dmy='%s' ORDER BY start;" % date)
 	return SanitizeCassRows(rows)
@@ -88,3 +105,8 @@ def DoesUserExist(username):
 @app.task(base=DatabaseTask)
 def AddUser(username, salt, hash, email):
 	AddUser.db.execute("INSERT INTO users (user, salt, pswd, email) VALUES ('%s', '%s', '%s', '%s');" % (username, salt, hash, email))
+
+@app.task(base=DatabaseTask)
+def GetChannelTitleFromId(ch_id):
+	rows = GetChannelTitleFromId.db.execute("SELECT title from channels_by_id WHERE id=%s" % ch_id)
+	return SanitizeCassRows(rows)

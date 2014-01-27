@@ -1,12 +1,12 @@
-from whatsup.db import session
-from whatsup.db import get_title_from_chid
-from whatsup.db import create_channel
-
 from whatsup.task_queue import write_to_db
+from whatsup.task_queue import GetChannelTitleFromId
+from whatsup.task_queue import DecodeGetChannelTitleFromId
+from whatsup.task_queue import CreateChannel
 
 import whatsup.core
 import tornado.web
 import tornado.websocket
+from tornado import gen
 
 import uuid
 import json
@@ -16,6 +16,7 @@ PATH_TO_SITE = "../"
 CHANNEL_PAGE = "channel.html"
 
 channel_client_hash = {}
+decode = DecodeGetChannelTitleFromId
 
 def uuid_to_url(ch_id):
 	return ch_id.bytes.encode('base_64').rstrip('=\n').replace('/', '_').replace('+', "-")
@@ -34,6 +35,8 @@ class ChannelHandler(whatsup.core.BaseHandler):
 	"""
 
 	@tornado.web.removeslash
+	@tornado.web.asynchronous
+	@gen.coroutine
 	def get(self, url):
 		if self.current_user:
 			logged_in = True
@@ -48,12 +51,13 @@ class ChannelHandler(whatsup.core.BaseHandler):
 			ch_id = url
 			rows = None
 		else:
-			rows = get_title_from_chid(ch_id)
+			response = yield gen.Task(GetChannelTitleFromId.apply_async, args=[ch_id])
+			rows = response.result
 
 		if not rows:
 			self.write("Channel does not exist")
 		else:
-			channel_title = rows[0].title
+			channel_title = rows[0][decode.title]
 			self.render(PATH_TO_SITE+CHANNEL_PAGE, channel_title=channel_title, logged_in=logged_in, ch_id=ch_id)
 
 class ChannelWebSocketHandler(tornado.websocket.WebSocketHandler):
@@ -112,6 +116,8 @@ class ChannelWebSocketHandler(tornado.websocket.WebSocketHandler):
 
 # Create channels:
 class CreateChannelHandler(whatsup.core.BaseHandler):
+	@tornado.web.asynchronous
+	@gen.coroutine
 	def post(self):
 		title = self.get_argument("title")
 		tag = self.get_argument("tag")
@@ -125,6 +131,6 @@ class CreateChannelHandler(whatsup.core.BaseHandler):
 		#timestamp will just use cassandra getdate(now())
 		# Need to insert into all channel column families, see: db_sechma for columns
 
-		create_channel(title, tag, length, dmy, hour, user, ch_id, url)
+		yield gen.Task(CreateChannel.apply_async, args=[title, tag, length, dmy, hour, user, ch_id, url])
 
-		self.redirect("/")
+		self.redirect("/ch/%s" % url)
