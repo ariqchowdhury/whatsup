@@ -30,7 +30,7 @@
 				</div>
 
 				{% if logged_in %}
-				<div class="col-md-offset-1 col-md-3 panel panel-primary">
+				<div class="col-md-offset-1 col-md-3 panel panel-default">
 					<div class="panel-body">
 						<form  action="/CreateChannel" method="post" role="form">
 							<div class="form-group">
@@ -62,7 +62,7 @@
 					</div>
 				</div>
 				{% else %}
-				<div class="col-md-offset-1 col-md-3 panel panel-primary">
+				<div class="col-md-offset-1 col-md-3 panel panel-default">
 					<div class="panel-body">
 						<h4>New? Register</h4>
 						<form  action="/register" method="post" role="form">
@@ -75,7 +75,7 @@
 							<div class="form-group">
 								<input type="text" name="email" placeholder="Your Email">
 							</div>
-							<button class="btn btn-success" type="Submit" id="create_ch">Register</button>
+							<button class="btn btn-danger" type="Submit" id="register">Register</button>
 							{% module xsrf_form_html() %}
 						</form>
 					</div>
