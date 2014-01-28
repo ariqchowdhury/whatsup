@@ -1,7 +1,7 @@
 $(document).ready(function(evt) {
 	var ws;
 	var host = "localhost";
-	var port = "8888";
+	var port = "9000";
 	var uri = "/ws";
 	
 	ws = new WebSocket("ws://" + host + ":" + port + uri);
