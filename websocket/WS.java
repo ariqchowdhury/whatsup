@@ -5,30 +5,36 @@ import org.json.simple.parser.ParseException;
 import org.webbitserver.WebServer;
 import org.webbitserver.BaseWebSocketHandler;
 import org.webbitserver.WebSocketConnection;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URISyntaxException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+
 
 import static org.webbitserver.WebServers.createWebServer;
 
 public class WS extends BaseWebSocketHandler {
 	
-	private Map<String, List<WebSocketConnection>> channel_collection = Collections.synchronizedMap(new HashMap<String, List<WebSocketConnection>>()); 
-	
+	private Map<String, List<WebSocketConnection>> channel_collection = Collections.synchronizedMap(new HashMap<String, List<WebSocketConnection>>());
+		
 	public void onOpen(WebSocketConnection connection) {
-		System.out.println("open");
+		
 	}
 	
 	public void onClose(WebSocketConnection connection) {
-		System.out.println("close: " + connection.data("chid"));
 		channel_collection.get(connection.data("chid")).remove(connection);
-		//channel_collection.get()
-		//find connection and remove it from the channel_collection
 	}
 	
-	public void onMessage(WebSocketConnection connection, String message) throws ParseException {
+	public void onMessage(WebSocketConnection connection, String message) throws ParseException, IOException {
 		//System.out.println(message);
 				
 		JSONParser parser = new JSONParser();
@@ -41,8 +47,6 @@ public class WS extends BaseWebSocketHandler {
 
 		if (type.equals("init")) {
 			String ch_key = (String) jsonObject.get("msg");
-			//WhatsupConnection ws = new WhatsupConnection(connection);
-			//ws.ch_id = ch_key;
 			
 			connection.data("chid", ch_key);
 			
@@ -77,11 +81,25 @@ public class WS extends BaseWebSocketHandler {
 			long stopTime = System.currentTimeMillis();
 			long elapsedTime = stopTime - startTime;
 			System.out.println(elapsedTime+"ms");
+								
+			//Write comment to database
+			String db_cmd = "python src/j_write_db.py " + user + " " + msg + " " + ch_key;
+			Process p = Runtime.getRuntime().exec(db_cmd);
+			BufferedReader stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()));
+			BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+			
+			String s = null;
+			while ((s = stdInput.readLine()) != null) {
+				System.out.println(s);
+			}
+			while ((s = stdError.readLine()) != null) {
+				System.out.println(s);
+			}
 		}	
 		
 	}
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		WebServer webServer = createWebServer(9000)
              .add("/ws", new WS());
 	
