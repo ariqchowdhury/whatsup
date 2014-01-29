@@ -60,59 +60,6 @@ class ChannelHandler(whatsup.core.BaseHandler):
 			channel_title = rows[0][decode.title]
 			self.render(PATH_TO_SITE+CHANNEL_PAGE, channel_title=channel_title, logged_in=logged_in, ch_id=ch_id)
 
-class ChannelWebSocketHandler(tornado.websocket.WebSocketHandler):
-	""" Handler for a channel room. 
-	"""
-
-	ch_id = None
-
-	def open(self):
-		print "Connection Opened"
-		self.write_message({'sender': "server", 'msg': "New Connection Opened"})
-
-	def on_message(self, message):
-		# TODO: write message to buffer
-
-		received_obj = json.loads(message)
-
-		if received_obj['type'] == 'init':
-			 
-			ch_key = received_obj['msg']
-			self.ch_id = ch_key
-
-			if ch_key in channel_client_hash:
-				channel_client_hash[ch_key].append(self)
-			else:
-				channel_client_hash[ch_key] = [self]
-
-		elif received_obj['type'] == 'msg':
-			# Get a timestamp
-			now = datetime.datetime.now()
-			date = now.date()
-			time = now.time()
-
-			msg = received_obj['msg']
-			user = received_obj['user']
-			src = received_obj['src']
-
-			comment_id = uuid.uuid4()
-
-			write_to_db.delay(user, msg, src, comment_id)
-
-			for client in channel_client_hash[received_obj['src']]:
-				client.write_message({'msg': "%s" % received_obj['msg'], 'user': "%s" % received_obj['user'], 'ts': "%s" % time})
-
-		elif received_obj['type'] == 'close':
-			print "CLOSE MESSAGE RECEIVED"
-			ch_key = received_obj['msg']
-			channel_client_hash[ch_key].remove(self)
-		else:
-			raise Exception("received type from websocket is invalid")
-
-	def on_close(self):
-		print "Connection Closed"
-		channel_client_hash[self.ch_id].remove(self)
-
 
 # Create channels:
 class CreateChannelHandler(whatsup.core.BaseHandler):

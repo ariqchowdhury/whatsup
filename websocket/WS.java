@@ -9,17 +9,11 @@ import org.webbitserver.WebSocketConnection;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.URISyntaxException;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
-
-
 import static org.webbitserver.WebServers.createWebServer;
 
 public class WS extends BaseWebSocketHandler {
@@ -31,6 +25,7 @@ public class WS extends BaseWebSocketHandler {
 	}
 	
 	public void onClose(WebSocketConnection connection) {
+		// Connection holds which chid it belongs to, so use that to find it in the hash and then remove it
 		channel_collection.get(connection.data("chid")).remove(connection);
 	}
 	

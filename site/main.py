@@ -15,7 +15,6 @@ handlers = [
 	(r"/", whatsup.core.HomeHandler),
 	(r"/ch/?", whatsup.core.HomeHandler), # TODO: This should be handled with a page asking user which channel they meant to go to
 	(r"/ch/([A-Za-z0-9\_]+/*)", whatsup.channel.ChannelHandler),
-	(r"/ws", whatsup.channel.ChannelWebSocketHandler),
 	(r"/CreateChannel", whatsup.channel.CreateChannelHandler),
 	(r"/login", whatsup.auth.LoginHandler),
 	(r"/register", whatsup.auth.RegisterHandler),
