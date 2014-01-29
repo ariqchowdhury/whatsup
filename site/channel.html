@@ -6,12 +6,8 @@
 		<link rel="stylesheet" type="text/css" href="{{ static_url("css/ch_stylesheet.css") }}"/>		
 	</head>
 	<body>
-		<div hidden id="ch_id">
-			{{ ch_id }}
-		</div>
-		<div hidden id="user">
-			{{ current_user }}
-		</div>
+		<div hidden id="ch_id">{{ ch_id }}</div>
+		<div hidden id="user">{{ current_user }}</div>
 
 		{% include "../header.html" %}
 
