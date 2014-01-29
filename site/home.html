@@ -20,7 +20,7 @@
 						{% for ch in flist %}
 							<a href={{ "ch/"+ch[decode.url]}} class="list-group-item">
 								<h4 class="list-group-item-heading">{{ ch[decode.title].replace("2014", "") }}</h4>
-								<span class="badge">{{ ch[decode.start].time() }}</span>
+								<span class="badge">{{ ch[decode.start] }}</span>
 								<p class="list-group-item-text">DESCRIPTION</p>
 								<span class="label label-default">#{{ch[decode.tag]}}</span>
 							</a>
@@ -92,7 +92,7 @@
 						{% for ch in flist %}
 							<a href={{ "ch/"+ch[decode.url]}} class="list-group-item">
 								<h4 class="list-group-item-heading">{{ ch[decode.title].replace("2014", "") }}</h4>
-								<span class="badge">{{ ch[decode.start].time() }}</span>
+								<span class="badge">{{ ch[decode.start] }}</span>
 								<p class="list-group-item-text">DESCRIPTION</p>
 								<span class="label label-default">#{{ch[decode.tag]}}</span>
 							</a>
