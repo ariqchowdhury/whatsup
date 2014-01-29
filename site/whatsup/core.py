@@ -24,14 +24,17 @@ class HomeHandler(BaseHandler):
 	""" Handler for the homepage.
 	Extends a Tornado RequestHandler.
 	"""
-	_redis = None
+	# _redis = None
 	featured_list = []
 	all_list = []
+	_redis = redis.StrictRedis(host='localhost', port=6379, db=0)
 
 	@property
 	def redis(self):
-		if self._redis is None:
-			self._redis = redis.StrictRedis(host='localhost', port=6379, db=0)
+		# if self._redis is None:
+		# 	print "HOW MANY TIMES DOES THIS ACTUALLY GET CALLED"
+		# 	self._redis = redis.StrictRedis(host='localhost', port=6379, db=0)
+		# return self._redis
 		return self._redis
 
 	def get_frontpage_results(self):
