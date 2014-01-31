@@ -1,20 +1,18 @@
 import tornado.web
 from tornado import gen
-
-from whatsup.cookies import Cookies
-
-from whatsup.task_queue import generate_frontpage
-from whatsup.task_queue import DecodeGenerateFrontpage
-
 import tcelery
 import redis
 
-tcelery.setup_nonblocking_producer()
+from whatsup.cookies import Cookies
+from whatsup.task_queue import generate_frontpage
+from whatsup.task_queue import DecodeGenerateFrontpage
 
 PATH_TO_SITE = "../"
 HOMEPAGE = "home.html"
 
 HOME_NUM_EVENTS_TO_DISPLAY = 10
+
+tcelery.setup_nonblocking_producer()
 
 class BaseHandler(tornado.web.RequestHandler):
 	def get_current_user(self):
@@ -24,22 +22,17 @@ class HomeHandler(BaseHandler):
 	""" Handler for the homepage.
 	Extends a Tornado RequestHandler.
 	"""
-	# _redis = None
-	featured_list = []
-	all_list = []
+	_featured_list = []
+	_all_list = []
 	_redis = redis.StrictRedis(host='localhost', port=6379, db=0)
 
 	@property
 	def redis(self):
-		# if self._redis is None:
-		# 	print "HOW MANY TIMES DOES THIS ACTUALLY GET CALLED"
-		# 	self._redis = redis.StrictRedis(host='localhost', port=6379, db=0)
-		# return self._redis
 		return self._redis
 
 	def get_frontpage_results(self):
-		self.featured_list = []
-		self.all_list = []
+		self._featured_list = []
+		self._all_list = []
 		for i in range(0,10):
 			if not self.redis.exists("featured:%s:title" % i):
 				break
@@ -49,8 +42,8 @@ class HomeHandler(BaseHandler):
 			channel.append(self.redis.get("featured:%s:start" % i))
 			channel.append(self.redis.get("featured:%s:url" % i))
 			channel.append(self.redis.get("featured:%s:dmy" % i))
-			self.featured_list.append(channel)
-			self.all_list.append(channel)
+			self._featured_list.append(channel)
+			self._all_list.append(channel)
 
 	@tornado.web.addslash
 	@tornado.web.asynchronous
@@ -58,12 +51,7 @@ class HomeHandler(BaseHandler):
 	def get(self):
 		self.get_frontpage_results()
 
-		# response = yield gen.Task(generate_frontpage.apply_async, args=['2014-01-17'])
-
-		# featured_list = response.result
-		# all_list = response.result[:HOME_NUM_EVENTS_TO_DISPLAY]
-
 		if self.current_user:
-			self.render(PATH_TO_SITE + HOMEPAGE, logged_in=True, flist=self.featured_list, alist=self.all_list, decode=DecodeGenerateFrontpage)
+			self.render(PATH_TO_SITE + HOMEPAGE, logged_in=True, flist=self._featured_list, alist=self._all_list, decode=DecodeGenerateFrontpage)
 		else:
-			self.render(PATH_TO_SITE + HOMEPAGE, logged_in=False, flist=self.featured_list, alist=self.all_list, decode=DecodeGenerateFrontpage)
+			self.render(PATH_TO_SITE + HOMEPAGE, logged_in=False, flist=self._featured_list, alist=self._all_list, decode=DecodeGenerateFrontpage)
