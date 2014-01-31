@@ -1,11 +1,11 @@
+import os.path
+
 import tornado.web
 import tornado.ioloop
 
 import whatsup.core
 import whatsup.auth
 import whatsup.channel
-
-import os.path
 
 # Server settings
 MAIN_PORT = 8888

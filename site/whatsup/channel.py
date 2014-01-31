@@ -1,16 +1,13 @@
-from whatsup.task_queue import write_to_db
-from whatsup.task_queue import GetChannelTitleFromId
-from whatsup.task_queue import DecodeGetChannelTitleFromId
-from whatsup.task_queue import CreateChannel
+import uuid
+import json
+import datetime
 
-import whatsup.core
 import tornado.web
 import tornado.websocket
 from tornado import gen
 
-import uuid
-import json
-import datetime
+from whatsup.task_queue import write_to_db, GetChannelTitleFromId, DecodeGetChannelTitleFromId, CreateChannel
+import whatsup.core
 
 PATH_TO_SITE = "../"
 CHANNEL_PAGE = "channel.html"
