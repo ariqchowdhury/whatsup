@@ -15,12 +15,12 @@ if __name__ == "__main__":
 	rows = generate_frontpage.delay('2014-01-17')
 	flist = rows.result
 
-	for i in range(0, len(flist[:10])):
-		r.set("featured:%s:title" % i, "%s" % flist[i][decode.title])
-		r.set("featured:%s:tag" % i, "%s" % flist[i][decode.tag])
-		r.set("featured:%s:start" % i, "%s" % flist[i][decode.start].time())
-		r.set("featured:%s:url" % i, "%s" % flist[i][decode.url])
-		r.set("featured:%s:dmy" % i, "%s" % flist[i][decode.dmy])
+	for i, item in enumerate(flist):
+		r.set("featured:%s:title" % i, "%s" % item[decode.title])
+		r.set("featured:%s:tag" % i, "%s" % item[decode.tag])
+		r.set("featured:%s:start" % i, "%s" % item[decode.start].time())
+		r.set("featured:%s:url" % i, "%s" % item[decode.url])
+		r.set("featured:%s:dmy" % i, "%s" % item[decode.dmy])
 
 
 
