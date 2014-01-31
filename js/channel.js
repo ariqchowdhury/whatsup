@@ -15,9 +15,12 @@ $(document).ready(function(evt) {
 	}
 
 	ws.onmessage = function(evt) {
+		console.log(new Date().getTime());
 		data = JSON.parse(evt.data);
 		// Add message to message box
 		AppendMessage(data);
+		console.log(new Date().getTime());
+
 		// Scroll to newest message
 		$("#messages").scrollTop($("#messages")[0].scrollHeight);
 	};
@@ -55,7 +58,8 @@ function AppendMessage(data) {
 						"</div>" +
 						"</div>";
 
-	$("#messages").append($(html_message).hide().fadeIn(175));//.fadeIn(150));
+	document.getElementById("messages").innerHTML += html_message;
+	//$("#messages").append($(html_message).hide().fadeIn(200));//.fadeIn(150));
 }
 
 // This function sends the text from the 'comment' textarea across the websocket
