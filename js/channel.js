@@ -3,6 +3,9 @@ $(document).ready(function(evt) {
 	var host = "localhost";
 	var port = "9000";
 	var uri = "/ws";
+
+	var id = $("#ch_id").text();
+	var user = $("#user").text();
 	
 	ws = new WebSocket("ws://" + host + ":" + port + uri);
 
@@ -24,14 +27,14 @@ $(document).ready(function(evt) {
 	}
 
 	$("#send").click(function() {
-		SendMessage(ws);
+		SendMessage(ws, id, user);
 	})
 
 	$(document).keypress(function(event) {
 		// If key pressed is 'enter'
 		if (event.keyCode == 13 && !event.shiftKey) {
 			event.preventDefault();
-			SendMessage(ws);
+			SendMessage(ws, id, user);
 		}
 	})
 
@@ -52,14 +55,12 @@ function AppendMessage(data) {
 						"</div>" +
 						"</div>";
 
-	$("#messages").append(html_message);
+	$("#messages").append($(html_message).hide().fadeIn(175));//.fadeIn(150));
 }
 
 // This function sends the text from the 'comment' textarea across the websocket
-function SendMessage(websocket) {
+function SendMessage(websocket, id, user) {
 	var comment = $("#comment").val();
-	var id = $("#ch_id").text();
-	var user = $("#user").text();
 
 	var msg = {
 		type: 'msg',

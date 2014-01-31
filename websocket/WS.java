@@ -57,7 +57,7 @@ public class WS extends BaseWebSocketHandler {
 		}
 		else if (type.equals("msg")) {
 			//broadcast
-			String ch_key = (String) jsonObject.get("src");
+			String src = (String) jsonObject.get("src");
 			String msg = (String) jsonObject.get("msg");
 			String user = (String) jsonObject.get("user");
 							
@@ -70,16 +70,18 @@ public class WS extends BaseWebSocketHandler {
 			
 			long startTime = System.currentTimeMillis();
 			
-			for (WebSocketConnection client : channel_collection.get(ch_key)) {
+			for (WebSocketConnection client : channel_collection.get(src)) {
 				client.send(json_outgoing_message);
 			}
 			long stopTime = System.currentTimeMillis();
 			long elapsedTime = stopTime - startTime;
 			System.out.println(elapsedTime+"ms");
 								
-			//Write comment to database
-			String db_cmd = "python src/j_write_db.py " + user + " " + msg + " " + ch_key;
-			Process p = Runtime.getRuntime().exec(db_cmd);
+			// sanitized msg should escape out string quotes
+			String sanitized_msg = "\'" + msg + "\'";
+			
+			//Write comment to database			
+			Process p = Runtime.getRuntime().exec(new String[] {"python", "src/j_write_db.py", user, sanitized_msg, src});
 			BufferedReader stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()));
 			BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
 			

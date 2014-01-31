@@ -7,11 +7,9 @@ if __name__ == "__main__":
 	message = sys.argv[2]
 	_src = sys.argv[3]
 
-	print _src
+	#TODO: message needs to be sanitized here for db entry. Entering qutoes messes things up right now '', ""
+
 	src = uuid.UUID(_src)
 	comment_id = uuid.uuid4()
-
-	
-	print src
 
 	write_to_db.delay(username, message, src, comment_id)

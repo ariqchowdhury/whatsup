@@ -57,7 +57,7 @@ def write_to_db(user, msg, src, comment_id):
 	
 	write_to_db.db.execute("""
 		INSERT INTO comment (id, user, data, score, ts)
-		VALUES (%s, '%s', '%s', 0, dateof(now()));
+		VALUES (%s, '%s', %s, 0, dateof(now()));
 		""" % (comment_id, user, msg))
 
 	write_to_db.db.execute("""
