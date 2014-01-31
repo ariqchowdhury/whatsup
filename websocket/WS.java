@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
 import static org.webbitserver.WebServers.createWebServer;
 
 public class WS extends BaseWebSocketHandler {
@@ -29,6 +30,7 @@ public class WS extends BaseWebSocketHandler {
 		channel_collection.get(connection.data("chid")).remove(connection);
 	}
 	
+	@SuppressWarnings("unchecked")
 	public void onMessage(WebSocketConnection connection, String message) throws ParseException, IOException {
 		//System.out.println(message);
 				
@@ -68,30 +70,44 @@ public class WS extends BaseWebSocketHandler {
 				
 			String json_outgoing_message = outgoing_message.toJSONString();
 			
-			long startTime = System.currentTimeMillis();
+			//long startTime = System.currentTimeMillis();
 			
 			for (WebSocketConnection client : channel_collection.get(src)) {
 				client.send(json_outgoing_message);
 			}
-			long stopTime = System.currentTimeMillis();
+			/*long stopTime = System.currentTimeMillis();
 			long elapsedTime = stopTime - startTime;
-			System.out.println(elapsedTime+"ms");
+			System.out.println(elapsedTime+"ms");*/
 								
 			// sanitized msg should escape out string quotes
 			String sanitized_msg = "\'" + msg + "\'";
 			
-			//Write comment to database			
-			Process p = Runtime.getRuntime().exec(new String[] {"python", "src/j_write_db.py", user, sanitized_msg, src});
-			BufferedReader stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()));
-			BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+			long startTime = System.currentTimeMillis();
+			//Write comment to database	
+			ProcessBuilder p = new ProcessBuilder(new String[] {"python", "src/j_write_db.py", user, sanitized_msg, src});
+			final Process process = p.start();
+						
+			new Thread(new Runnable() {
+				public void run() {
+					try {
+						BufferedReader stdInput = new BufferedReader(new InputStreamReader(process.getInputStream()));
+						BufferedReader stdError = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+						String s = null;
+						while ((s = stdInput.readLine()) != null) {
+							System.out.println(s);
+						}
+						while ((s = stdError.readLine()) != null) {
+							System.out.println(s);
+						}
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			}).start();
 			
-			String s = null;
-			while ((s = stdInput.readLine()) != null) {
-				System.out.println(s);
-			}
-			while ((s = stdError.readLine()) != null) {
-				System.out.println(s);
-			}
+			long stopTime = System.currentTimeMillis();
+			long elapsedTime = stopTime - startTime;
+			System.out.println(elapsedTime+"ms");
 		}	
 		
 	}
