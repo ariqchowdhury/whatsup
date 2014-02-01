@@ -11,7 +11,7 @@ $(document).ready(function(evt) {
 
 
 	ws.onopen = function(evt) {
-		SendInitMessage(ws);
+		SendInitMessage(ws, id);
 	}
 
 	ws.onmessage = function(evt) {
@@ -26,7 +26,7 @@ $(document).ready(function(evt) {
 	};
 
 	ws.onclose = function(evt) {
-		SendCloseMessage(ws);
+		
 	}
 
 	$("#send").click(function() {
@@ -77,8 +77,7 @@ function SendMessage(websocket, id, user) {
 	$("#comment").val('');
 }
 
-function SendInitMessage(websocket) {
-	var id = $("#ch_id").text();
+function SendInitMessage(websocket, id) {
 
 	var msg = {
 		type: 'init', 
@@ -87,15 +86,4 @@ function SendInitMessage(websocket) {
 
 	websocket.send(JSON.stringify(msg));
 
-}
-
-function SendCloseMessage(websocket) {
-	var id = $("#ch_id").text();
-
-	var msg = {
-		type: 'close', 
-		msg: id
-	}
-
-	websocket.send(JSON.stringify(msg));
 }

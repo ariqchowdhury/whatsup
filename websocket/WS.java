@@ -9,25 +9,35 @@ import org.webbitserver.WebSocketConnection;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.FutureTask;
 
 import static org.webbitserver.WebServers.createWebServer;
 
 public class WS extends BaseWebSocketHandler {
 	
 	private Map<String, List<WebSocketConnection>> channel_collection = Collections.synchronizedMap(new HashMap<String, List<WebSocketConnection>>());
-		
+	private int num_conn = 0;
+	
 	public void onOpen(WebSocketConnection connection) {
-		
+		//System.out.println("New connection");
+		num_conn++;
+		System.out.println(num_conn);
 	}
 	
 	public void onClose(WebSocketConnection connection) {
 		// Connection holds which chid it belongs to, so use that to find it in the hash and then remove it
 		channel_collection.get(connection.data("chid")).remove(connection);
+		num_conn--;
+		//System.out.println("CLOSED connection");
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -51,7 +61,7 @@ public class WS extends BaseWebSocketHandler {
 				channel_collection.get(ch_key).add(connection);
 			}
 			else {
-				List<WebSocketConnection> users = Collections.synchronizedList(new LinkedList<WebSocketConnection>());
+				List<WebSocketConnection> users = Collections.synchronizedList(new ArrayList<WebSocketConnection>(550));
 				users.add(connection);
 				channel_collection.put(ch_key, users);
 			}
@@ -68,23 +78,78 @@ public class WS extends BaseWebSocketHandler {
 			outgoing_message.put("user", user);
 			outgoing_message.put("ts", "10:00");
 				
-			String json_outgoing_message = outgoing_message.toJSONString();
+			final String json_outgoing_message = outgoing_message.toJSONString();
 			
-			//long startTime = System.currentTimeMillis();
+			final WebSocketConnection conn = connection;
+				
+			long startTime = System.currentTimeMillis();
 			
-			for (WebSocketConnection client : channel_collection.get(src)) {
+			/*for (WebSocketConnection client : channel_collection.get(src)) {
 				client.send(json_outgoing_message);
+			}*/
+			
+			/*for (int i = 0; i < 300; i++) {
+				connection.send(json_outgoing_message);
+			}*/
+			
+			/******************************************/
+			/*Prepare multiprocessing stuff here*/
+			int num_threads = 2;
+			
+			ExecutorService executor = Executors.newFixedThreadPool(num_threads);
+			List<FutureTask<Void>> task_list = new ArrayList<FutureTask<Void>>();
+			
+			List<WebSocketConnection> full_list = channel_collection.get(src);
+			int list_size = full_list.size();
+			
+			if (list_size < num_threads) {
+				
+				for (WebSocketConnection client : channel_collection.get(src)) {
+					client.send(json_outgoing_message);
+				}
 			}
-			/*long stopTime = System.currentTimeMillis();
+			else {
+			
+				int mid_point = list_size / num_threads;
+				
+				final List<WebSocketConnection> sublist_1 = full_list.subList(0, mid_point);
+				final List<WebSocketConnection> sublist_2 = full_list.subList(mid_point, list_size);
+				
+				FutureTask<Void> ft1 = new FutureTask<Void>(new Callable<Void>() {
+					@Override
+					public Void call() {
+						return WS.BroadcastMsg(sublist_1, json_outgoing_message);
+					}
+				});
+				
+				task_list.add(ft1);
+				executor.execute(ft1);
+				
+				FutureTask<Void> ft2 = new FutureTask<Void>(new Callable<Void>() {
+					@Override
+					public Void call() {
+						return WS.BroadcastMsg(sublist_2, json_outgoing_message);
+					}
+				});
+				
+				task_list.add(ft2);
+				executor.execute(ft2);
+				
+				task_list.get(0);
+				task_list.get(1);
+				executor.shutdown();
+			}
+			/********************************************/
+			
+			long stopTime = System.currentTimeMillis();
 			long elapsedTime = stopTime - startTime;
-			System.out.println(elapsedTime+"ms");*/
+			System.out.println(elapsedTime+"ms");
 								
 			// sanitized msg should escape out string quotes
 			String sanitized_msg = "\'" + msg + "\'";
 			
-			long startTime = System.currentTimeMillis();
 			//Write comment to database	
-			ProcessBuilder p = new ProcessBuilder(new String[] {"python", "src/j_write_db.py", user, sanitized_msg, src});
+			/*ProcessBuilder p = new ProcessBuilder(new String[] {"python", "src/j_write_db.py", user, sanitized_msg, src});
 			final Process process = p.start();
 						
 			new Thread(new Runnable() {
@@ -103,13 +168,18 @@ public class WS extends BaseWebSocketHandler {
 						e.printStackTrace();
 					}
 				}
-			}).start();
-			
-			long stopTime = System.currentTimeMillis();
-			long elapsedTime = stopTime - startTime;
-			System.out.println(elapsedTime+"ms");
+			}).start();*/
+
 		}	
 		
+	}
+	
+	public static Void BroadcastMsg(List<WebSocketConnection> conn, String msg) {
+		for (WebSocketConnection client : conn) {
+			client.send(msg);
+		}
+		
+		return null;
 	}
 	
 	public static void main(String[] args) throws IOException {
