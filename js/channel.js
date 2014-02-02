@@ -1,3 +1,8 @@
+function get (el) {
+	if (typeof el == 'string') return document.getElementById(el);
+	return el;
+}
+
 $(document).ready(function(evt) {
 	var ws;
 	var host = "192.168.0.19";
@@ -58,8 +63,7 @@ function AppendMessage(data) {
 						"</div>" +
 						"</div>";
 
-	document.getElementById("messages").innerHTML += html_message;
-	//$("#messages").append($(html_message).hide().fadeIn(200));//.fadeIn(150));
+	get("messages").innerHTML += html_message;
 }
 
 // This function sends the text from the 'comment' textarea across the websocket
