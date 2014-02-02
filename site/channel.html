@@ -4,7 +4,7 @@
 		<title>{{ channel_title }}</title>
 		<link rel="stylesheet" type="text/css" href="{{ static_url("css/bootstrap.min.css") }}"/>	
 		<link rel="stylesheet" type="text/css" href="{{ static_url("css/ch_stylesheet.css") }}"/>
-		<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Droid+Sans:400, 700">
+		<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Droid+Sans">
 		<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Droid+Sans+Mono">
 
 	</head>
@@ -14,25 +14,29 @@
 
 		{% include "../header.html" %}
 
-		<div class="container messages">
-			<div class="row messages">
-				<div class="well col-md-10 messages" id="messages">	
+		<div class="well col-md-10 messages" id="messages">	
 
-				</div>
-
-			</div>
-
-			<div class="row">
-				{% if logged_in %}	      	
-			      	<textarea id="comment" placeholder="default text" cols=50 rows=5></textarea>
-			      	<button class="btn btn-primary btn-xs" type="submit" id="send">Send</button>
-			    {% else %}		    
-				    <textarea id="comment" placeholder="Sign in to submit message" cols=50 rows=5></textarea>
-				    <button class="btn btn-primary btn-xs" type="submit" id="send" disabled="disabled">Send</button>
-				{% end %}
-			</div>
 		</div>
 
+		<div class="ch_right_panel">
+			<div>
+				<h3> {{ channel_title }} </h3>
+				<h4>Some sort of description of the current channel</h4>
+				<p> Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
+					Vestibulum tempus ipsum sed leo convallis, eu interdum metus luctus.
+				</p>
+			</div>
+
+			{% if logged_in %}	      	
+		      	<textarea id="comment" placeholder="Post comment here" cols=50 rows=5></textarea>
+		      	<button class="btn btn-primary btn-xs" type="submit" id="send">Send</button>
+		    {% else %}		    
+			    <textarea id="comment" placeholder="Sign in to submit message" cols=50 rows=5></textarea>
+			    <button class="btn btn-primary btn-xs" type="submit" id="send" disabled="disabled">Send</button>
+			{% end %}
+		</div>
+
+		
 
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 		<!-- // <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script> -->
