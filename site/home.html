@@ -22,7 +22,7 @@
 								<h4 class="list-group-item-heading">{{ ch[decode.title].replace("2014", "") }}</h4>
 								<span class="badge">{{ ch[decode.start] }}</span>
 								<p class="list-group-item-text">DESCRIPTION</p>
-								<span class="label label-default">#{{ch[decode.tag]}}</span>
+								<span class="label label-danger">#{{ch[decode.tag]}}</span>
 							</a>
 						{% end %}
 					</div>					
@@ -59,7 +59,7 @@
 									{% end %}
 								</select>		
 							</div>
-							<button class="btn btn-primary" type="Submit" id="create_ch">Create</button>
+							<button class="btn btn-danger" type="Submit" id="create_ch">Create</button>
 							{% module xsrf_form_html() %}
 						</form>
 					</div>
@@ -97,7 +97,7 @@
 								<h4 class="list-group-item-heading">{{ ch[decode.title].replace("2014", "") }}</h4>
 								<span class="badge">{{ ch[decode.start] }}</span>
 								<p class="list-group-item-text">DESCRIPTION</p>
-								<span class="label label-default">#{{ch[decode.tag]}}</span>
+								<span class="label label-danger">#{{ch[decode.tag]}}</span>
 							</a>
 						{% end %}
 					</div>				
