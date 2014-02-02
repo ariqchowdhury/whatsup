@@ -2,7 +2,8 @@
 <html>
 	<head>
 		<title>{{ channel_title }}</title>
-		<link rel="stylesheet" type="text/css" href="{{ static_url("css/bootstrap.min.css") }}"/>	
+		<link rel="stylesheet" type="text/css" href="{{ static_url("css/bootstrap.min.css") }}"/>
+		<link rel="stylesheet" type="text/css" href="{{ static_url("css/navbar.css") }}"/>
 		<link rel="stylesheet" type="text/css" href="{{ static_url("css/ch_stylesheet.css") }}"/>
 		<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Droid+Sans">
 		<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Droid+Sans+Mono">
@@ -27,10 +28,10 @@
 			</div>
 
 			{% if logged_in %}	      	
-		      	<textarea id="comment" placeholder="Post comment here" cols=50 rows=5></textarea>
+		      	<textarea id="comment" placeholder="Post comment here" rows=5></textarea>
 		      	<button class="btn btn-primary btn-xs" type="submit" id="send">Send</button>
 		    {% else %}		    
-			    <textarea id="comment" placeholder="Sign in to submit message" cols=50 rows=5></textarea>
+			    <textarea id="comment" placeholder="Sign in to submit message" rows=5></textarea>
 			    <button class="btn btn-primary btn-xs" type="submit" id="send" disabled="disabled">Send</button>
 			{% end %}
 		</div>
