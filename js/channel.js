@@ -1,6 +1,6 @@
 $(document).ready(function(evt) {
 	var ws;
-	var host = "localhost";
+	var host = "192.168.0.19";
 	var port = "9000";
 	var uri = "/ws";
 
@@ -46,12 +46,12 @@ $(document).ready(function(evt) {
 function AppendMessage(data) {
 	var html_message =  "<div class='message_post_wrapper'>" +
 						"<div class='message_post'>" + 
-						"<div id='message_post_user'>" +
-						data.user +
+						"<div class ='h6' id='message_post_user'>" +
+						data.user + " : " + data.ts +
 						"</div>" +
-						"<div id='message_post_ts'>" +
-						data.ts +
-						"</div>" +
+						// "<div id='message_post_ts'>" +
+						// data.ts +
+						// "</div>" +
 						"<div id='message_post_msg'>" +
 						data.msg +
 						"</div>" + 

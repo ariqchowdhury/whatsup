@@ -10,17 +10,28 @@ html, body {
 	overflow: auto;
 }
 
+.message_post_wrapper {
+	margin: 5px;
+}
+
 .message_post {
-	border: 1px solid black;
-	border-radius: 3px;
-	margin: 1px;
+	border: 1px solid #D7DAD8;
+	background-color: #D7DAD8;
+	border-radius: 5px;
 	display: inline-block;
 	white-space: pre-wrap;
 }
 
 #message_post_user {
-	color: blue;
-	font-weight: bold;
+	color: #FFFFFF;
+	background-color: #EE5F5B;
+	margin-top: 7px;
+	padding-left: 5px;
+	padding-right: 5px;
+	padding-top: 5px;
+	padding-bottom: 5px;
+	word-wrap: break-word;
+
 }
 
 #message_post_ts {
@@ -29,7 +40,12 @@ html, body {
 }
 
 #message_post_msg {
-	color: black;
+	/*color: #2C3E50;*/
+	color: #333333;
+	max-width: 400px;
+	word-wrap: break-word;
+	font-family: "Helvetica";
+
 }
 
 #comment {
