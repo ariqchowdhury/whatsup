@@ -19,15 +19,12 @@ html, body {
 	overflow: auto;
 }
 
-.message_post_wrapper {
-	margin: 5px;
-}
-
 .message_post {
 	border: 1px solid #D7DAD8;
 	background-color: #D7DAD8;
 	border-radius: 5px;
 	display: inline-block;
+	margin: 5px;
 	white-space: pre-wrap;
 }
 

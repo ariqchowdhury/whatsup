@@ -1,3 +1,6 @@
+window.whatsup = {}
+whatsup.post_num = 0;
+
 function get (el) {
 	if (typeof el == 'string') return document.getElementById(el);
 	return el;
@@ -49,21 +52,34 @@ $(document).ready(function(evt) {
 })
 
 function AppendMessage(data) {
-	var html_message =  "<div class='message_post_wrapper'>" +
-						"<div class='message_post'>" + 
+
+	var html_message =  "<div class='message_post' id='message_post_wrapper_" + whatsup.post_num + "'>" + 
 						"<div class ='h6' id='message_post_user'>" +
-						data.user + " : " + data.ts +
+						data.user + " : " + data.ts + " " + whatsup.post_num +
 						"</div>" +
-						// "<div id='message_post_ts'>" +
-						// data.ts +
-						// "</div>" +
 						"<div id='message_post_msg'>" +
 						data.msg +
 						"</div>" + 
 						"</div>" +
-						"</div>";
+						"<br></div>";
 
 	get("messages").innerHTML += html_message;
+
+	$(".message_post").click(function() {
+		var element = event.target.id
+		
+		if (String(element).indexOf("wrapper") != -1) {
+			// get(element).style.visibility="hidden";
+			console.log(get(element).parentNode);
+		}
+
+		// console.log(element);
+
+		// get(element).parentNode.removeChild(element);
+		
+	})
+
+	whatsup.post_num++;
 }
 
 // This function sends the text from the 'comment' textarea across the websocket

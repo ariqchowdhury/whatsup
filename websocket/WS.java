@@ -76,7 +76,7 @@ public class WS extends BaseWebSocketHandler {
 			JSONObject outgoing_message = new JSONObject();
 			outgoing_message.put("msg", msg);
 			outgoing_message.put("user", user);
-			outgoing_message.put("ts", "10:00");
+			outgoing_message.put("ts", "12:34");
 				
 			final String json_outgoing_message = outgoing_message.toJSONString();
 			
