@@ -61,7 +61,7 @@ function AppendMessage(data) {
 						data.msg +
 						"</div>" + 
 						"</div>" +
-						"<br></div>";
+						"</div>";
 
 	get("messages").innerHTML += html_message;
 
@@ -70,7 +70,8 @@ function AppendMessage(data) {
 		
 		if (String(element).indexOf("wrapper") != -1) {
 			// get(element).style.visibility="hidden";
-			console.log(get(element).parentNode);
+			// console.log(get(element).parentNode);
+			get(element).parentNode.removeChild(get(element));
 		}
 
 		// console.log(element);

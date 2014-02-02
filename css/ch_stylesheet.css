@@ -26,6 +26,8 @@ html, body {
 	display: inline-block;
 	margin: 5px;
 	white-space: pre-wrap;
+	float: left;
+	clear: left;
 }
 
 #message_post_user {
