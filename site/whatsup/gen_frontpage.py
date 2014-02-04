@@ -1,3 +1,5 @@
+import datetime
+
 import redis
 
 from whatsup.task_queue import generate_frontpage
@@ -12,8 +14,13 @@ if __name__ == "__main__":
 	result = r.get("key")
 	print result
 
+	today = datetime.datetime.now()
+	# today.strftime("%Y-%m-%d")
+
 	rows = generate_frontpage.delay('2014-01-17')
 	flist = rows.result
+
+	print flist
 
 	for i, item in enumerate(flist):
 		r.set("featured:%s:title" % i, "%s" % item[decode.title])

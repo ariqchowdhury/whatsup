@@ -1,4 +1,5 @@
 import os.path
+from os import system
 
 import tornado.web
 import tornado.ioloop
@@ -32,5 +33,8 @@ settings = {
 application = tornado.web.Application(handlers, **settings)
 
 if __name__ == "__main__": 
+	#TODO: In production, this should start a cronjob that runs gen_frontpage periodically
+	system("python whatsup/gen_frontpage.py")
+
 	application.listen(MAIN_PORT)
 	tornado.ioloop.IOLoop.instance().start()

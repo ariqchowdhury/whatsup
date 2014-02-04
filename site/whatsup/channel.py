@@ -1,6 +1,5 @@
 import uuid
 import json
-import datetime
 
 import tornado.web
 import tornado.websocket
