@@ -30,6 +30,7 @@ public class WS extends BaseWebSocketHandler {
 		
 	}
 	
+	@SuppressWarnings("unchecked")
 	public void onClose(WebSocketConnection connection) {
 		JSONObject usr_cnt_msg = new JSONObject();
 		String ch_key = (String) connection.data("chid");
