@@ -8,7 +8,7 @@ function get (el) {
 
 $(document).ready(function(evt) {
 	var ws;
-	var host = "192.168.0.19";
+	var host = "localhost";
 	var port = "9000";
 	var uri = "/ws";
 
