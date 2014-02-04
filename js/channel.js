@@ -25,8 +25,15 @@ $(document).ready(function(evt) {
 	ws.onmessage = function(evt) {
 		console.log(new Date().getTime());
 		data = JSON.parse(evt.data);
+
+		if (data.hasOwnProperty('num_users')) {
+			UpdateUserCount(data);
+		}
+		else {
+			AppendMessage(data);	
+		}
 		// Add message to message box
-		AppendMessage(data);
+		
 		console.log(new Date().getTime());
 
 		// Scroll to newest message
@@ -107,4 +114,8 @@ function SendInitMessage(websocket, id) {
 
 	websocket.send(JSON.stringify(msg));
 
+}
+
+function UpdateUserCount(data) {
+	document.getElementById('time').innerHTML = "Number of Users: " + data.num_users;
 }
