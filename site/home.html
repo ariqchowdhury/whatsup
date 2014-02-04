@@ -6,9 +6,10 @@
 		<link rel="stylesheet" type="text/css" href="{{ static_url("css/bootstrap.min.css") }}"/>
 		<link rel="stylesheet" type="text/css" href="{{ static_url("css/navbar.css") }}"/>
 		<link rel="stylesheet" type="text/css" href="{{ static_url("css/datepicker.css") }}"/>
+		<script type="text/javascript" src="{{ static_url("js/clock.js") }}"></script>
 	</head>
 
-	<body>
+	<body onload="startTime()">
 		{% include "../header.html" %}
 
 		<div class="container">
@@ -20,7 +21,7 @@
 						{% for ch in flist %}
 							<a href={{ "ch/"+ch[decode.url]}} class="list-group-item">
 								<h4 class="list-group-item-heading">{{ ch[decode.title].replace("2014", "") }}</h4>
-								<span class="badge">{{ ch[decode.start] }}</span>
+								<span class="badge">{{ ch[decode.start] }} UTC</span>
 								<p class="list-group-item-text">DESCRIPTION</p>
 								<span class="label label-danger">#{{ch[decode.tag]}}</span>
 							</a>
@@ -95,7 +96,7 @@
 						{% for ch in flist %}
 							<a href={{ "ch/"+ch[decode.url]}} class="list-group-item">
 								<h4 class="list-group-item-heading">{{ ch[decode.title].replace("2014", "") }}</h4>
-								<span class="badge">{{ ch[decode.start] }}</span>
+								<span class="badge">{{ ch[decode.start] }} UTC</span>
 								<p class="list-group-item-text">DESCRIPTION</p>
 								<span class="label label-danger">#{{ch[decode.tag]}}</span>
 							</a>

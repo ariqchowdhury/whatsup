@@ -25,18 +25,21 @@ import static org.webbitserver.WebServers.createWebServer;
 public class WS extends BaseWebSocketHandler {
 	
 	private Map<String, List<WebSocketConnection>> channel_collection = Collections.synchronizedMap(new HashMap<String, List<WebSocketConnection>>());
-	private int num_conn = 0;
+	private Map<String, Integer> channel_number_of_user = Collections.synchronizedMap(new HashMap<String, Integer>());
 	
 	public void onOpen(WebSocketConnection connection) {
 		//System.out.println("New connection");
-		num_conn++;
-		System.out.println(num_conn);
 	}
 	
 	public void onClose(WebSocketConnection connection) {
+		String ch_key = (String) connection.data("chid");
 		// Connection holds which chid it belongs to, so use that to find it in the hash and then remove it
-		channel_collection.get(connection.data("chid")).remove(connection);
-		num_conn--;
+		channel_collection.get(ch_key).remove(connection);
+		//channel_number_of_user.get(connection.data("chid")).
+		int temp = channel_number_of_user.get(ch_key);
+		temp--;
+		channel_number_of_user.put(ch_key, temp);
+		System.out.println(channel_number_of_user.get(ch_key));
 		//System.out.println("CLOSED connection");
 	}
 	
@@ -58,12 +61,21 @@ public class WS extends BaseWebSocketHandler {
 			connection.data("chid", ch_key);
 			
 			if (channel_collection.containsKey(ch_key)) {
-				channel_collection.get(ch_key).add(connection);
+				channel_collection.get(ch_key).add(connection);				
 			}
 			else {
 				List<WebSocketConnection> users = Collections.synchronizedList(new ArrayList<WebSocketConnection>(550));
 				users.add(connection);
 				channel_collection.put(ch_key, users);
+			}
+			
+			if (channel_number_of_user.containsKey(ch_key)) {
+				int temp = channel_number_of_user.get(ch_key);
+				temp++;
+				channel_number_of_user.put(ch_key, temp);	
+			}
+			else {
+				channel_number_of_user.put(ch_key, 1);
 			}
 			
 		}
