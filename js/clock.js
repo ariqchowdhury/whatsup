@@ -5,15 +5,8 @@ function startTime() {
 	var m = today.getUTCMinutes();
 	var s = today.getUTCSeconds();
 
-	m = checkTime(m);
-	s = checkTime(s);
+	m = ( m < 10 ? "0" : "") + m;
+	s = ( s < 10 ? "0" : "") + s;
 	document.getElementById('time').innerHTML = h + ":" + m + ":" + s + " UTC";
 	t = setTimeout(function(){startTime()}, 500);
-}
-
-function checkTime(i) {
-	if (i < 10) {
-		i = "0" + i;
-	}
-	return i;
 }
