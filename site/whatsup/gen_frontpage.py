@@ -18,7 +18,7 @@ if __name__ == "__main__":
 	# today.strftime("%Y-%m-%d")
 
 	rows = generate_frontpage.delay('2014-01-17')
-	flist = rows.result
+	flist = rows.get()
 
 	print flist
 
