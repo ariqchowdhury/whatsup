@@ -44,11 +44,20 @@ public class WS extends BaseWebSocketHandler {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public void onMessage(WebSocketConnection connection, String message) throws ParseException, IOException {
+	public void onMessage(WebSocketConnection connection, String message) {
 		//System.out.println(message);
 				
 		JSONParser parser = new JSONParser();
-		Object obj = parser.parse(message);
+		Object obj;
+		try  {
+			obj = parser.parse(message);
+		}
+		catch (ParseException e) {
+			// Parse exception likely means message coming from outside source/websocket connection
+			// TODO: log error message
+			e.printStackTrace();
+			return;
+		}
 		JSONObject jsonObject = (JSONObject) obj;
 		String type = (String) jsonObject.get("type");
 		
@@ -92,14 +101,6 @@ public class WS extends BaseWebSocketHandler {
 				
 			long startTime = System.currentTimeMillis();
 			
-			/*for (WebSocketConnection client : channel_collection.get(src)) {
-				client.send(json_outgoing_message);
-			}*/
-			
-			/*for (int i = 0; i < 300; i++) {
-				connection.send(json_outgoing_message);
-			}*/
-			
 			ParaBroadcastMsg(json_outgoing_message, src);
 			
 			long stopTime = System.currentTimeMillis();
@@ -115,9 +116,17 @@ public class WS extends BaseWebSocketHandler {
 		
 	}
 	
-	public void WriteCommentToDatabase(String user, String sanitized_msg, String src) throws IOException {
+	public void WriteCommentToDatabase(String user, String sanitized_msg, String src) {
 		ProcessBuilder p = new ProcessBuilder(new String[] {"python", "src/j_write_db.py", user, sanitized_msg, src});
-		final Process process = p.start();
+		final Process process;
+		try {
+			process = p.start();
+		} catch (IOException e1) {
+			// Something wrong with the director structure or file missing
+			// TODO: log error message
+			e1.printStackTrace();
+			return;
+		}
 					
 		new Thread(new Runnable() {
 			public void run() {
@@ -195,7 +204,7 @@ public class WS extends BaseWebSocketHandler {
 		return null;
 	}
 	
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) {
 		WebServer webServer = createWebServer(9000)
              .add("/ws", new WS());
 	
