@@ -32,6 +32,12 @@ html, body {
 	background-color: red;
 }
 
+#short_messages_grid {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
 .ch_right_panel {
 	margin-right: 5px;
 }
@@ -49,7 +55,6 @@ html, body {
 	margin: 5px;
 	white-space: pre-wrap;
 	float: left;
-	clear: left;
 	/*animation: fadein 0.5s;*/
 	animation: slideInBottom 1s;
 	-webkit-animation: slideInBottom 1s;

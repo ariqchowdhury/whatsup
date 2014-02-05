@@ -67,16 +67,18 @@ function AppendMessage(data) {
 						"</div>" +
 						"</div>";
 
+	var new_div = document.createElement('div');
+	
+	
 	if (data.msg.length < 18) {
-		destination_div = "short_messages";
+		destination_div = "short_messages_grid";
+		new_div.style.marginLeft= (Math.floor(Math.random()* 18)).toString() + "%";
+		html_message = "<li>" + html_message + "</li>";
 	}
 	else
 		destination_div = "long_messages";
 
-	var new_div = document.createElement('div');
 	new_div.innerHTML = html_message;
-	new_div.style.marginLeft= (Math.floor(Math.random()* 45)).toString() + "%";
-
 	var msg_div = get_element(destination_div);
 	// Prepend new message to message box
 	msg_div.appendChild(new_div);
