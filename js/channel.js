@@ -62,10 +62,10 @@ $(document).ready(function(evt) {
 function AppendMessage(data) {
 	var destination_div;
 	var html_message =  "<div class='message_post' id='message_post_wrapper_" + whatsup.post_num + "'>" + 
-						"<div class ='h6' id='message_post_user'>" +
+						"<div class ='h6 glow' id='message_post_user'>" +
 						data.user + " : " + data.ts + " " + whatsup.post_num +
 						"</div>" +
-						"<div id='message_post_msg'>" +
+						"<div class='glow' id='message_post_msg'>" +
 						data.msg +
 						"</div>" + 
 						"</div>" +
@@ -89,12 +89,7 @@ function AppendMessage(data) {
 			// get(element).style.visibility="hidden";
 			// console.log(get(element).parentNode);
 			get(element).parentNode.removeChild(get(element));
-		}
-
-		// console.log(element);
-
-		// get(element).parentNode.removeChild(element);
-		
+		}		
 	})
 
 	whatsup.post_num++;

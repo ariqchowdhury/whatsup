@@ -1,6 +1,7 @@
 html, body {
 	height: 100%;
 	width: 100%;
+
 }
 
 .messages {
@@ -35,8 +36,9 @@ html, body {
 	margin-right: 5px;
 }
 
-#messages {
-	
+.glow:hover {
+	box-shadow: 0 0 5px #000000;
+	cursor: default;
 }
 
 .message_post {
@@ -91,3 +93,20 @@ html, body {
 	margin-left: 10px;
 	margin-right: auto;
 }
+
+::-webkit-scrollbar {
+	width: 5px;
+}
+
+::-webkit-scrollbar-track {
+	background-color: #acacac;
+}
+
+::-webkit-scrollbar-thumb {
+	background-color: #ffffff;
+}
+
+::-webkit-scrollbar-button {
+	background-color: #acacac;
+}
+
