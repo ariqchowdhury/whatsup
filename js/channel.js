@@ -77,17 +77,18 @@ function AppendMessage(data) {
 	else
 		destination_div = "long_messages";
 
-	var msg_div = get(destination_div);
+	var new_div = document.createElement('div');
+	new_div.innerHTML = html_message;
 
-	msg_div.innerHTML = html_message + msg_div.innerHTML;
+	var msg_div = get(destination_div);
+	// Prepend new message to message box
+	msg_div.insertBefore(new_div, msg_div.firstChild);
 	msg_div.scrollTop = 0;
 
 	$(".message_post").click(function() {
 		var element = event.target.id
 		
 		if (String(element).indexOf("wrapper") != -1) {
-			// get(element).style.visibility="hidden";
-			// console.log(get(element).parentNode);
 			get(element).parentNode.removeChild(get(element));
 		}		
 	})

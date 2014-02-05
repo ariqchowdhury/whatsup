@@ -50,7 +50,54 @@ html, body {
 	white-space: pre-wrap;
 	float: left;
 	clear: left;
+	/*animation: fadein 0.5s;*/
+	animation: slideInBottom 1s;
+	-webkit-animation: slideInBottom 1s;
+	/*-webkit-animation: fadein 0.5s;*/
+
 }
+
+@keyframes fadein {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}	
+}
+
+@-webkit-keyframes fadein {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+@keyframes slideInBottom {
+	from {
+		opacity: 0;
+		transform: translateY(-2000px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@-webkit-keyframes slideInBottom {
+	from {
+		opacity: 0;
+		transform: translateY(-2000px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+
 
 #message_post_user {
 	color: #FFFFFF;
