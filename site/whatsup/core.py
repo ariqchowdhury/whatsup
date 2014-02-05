@@ -50,8 +50,7 @@ class HomeHandler(BaseHandler):
 	@gen.coroutine
 	def get(self):
 		self.get_frontpage_results()
+		logged_in = True if self.current_user else False
 
-		if self.current_user:
-			self.render(PATH_TO_SITE + HOMEPAGE, logged_in=True, flist=self._featured_list, alist=self._all_list, decode=DecodeGenerateFrontpage)
-		else:
-			self.render(PATH_TO_SITE + HOMEPAGE, logged_in=False, flist=self._featured_list, alist=self._all_list, decode=DecodeGenerateFrontpage)
+		self.render(PATH_TO_SITE + HOMEPAGE, logged_in=logged_in, flist=self._featured_list, alist=self._all_list, decode=DecodeGenerateFrontpage)
+		

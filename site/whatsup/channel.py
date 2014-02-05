@@ -34,10 +34,7 @@ class ChannelHandler(whatsup.core.BaseHandler):
 	@tornado.web.asynchronous
 	@gen.coroutine
 	def get(self, url):
-		if self.current_user:
-			logged_in = True
-		else:
-			logged_in = False
+		logged_in = True if self.current_user else False
 
 		try:
 			ch_id = url_to_uuid(url)
