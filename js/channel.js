@@ -37,7 +37,8 @@ $(document).ready(function(evt) {
 		console.log(new Date().getTime());
 
 		// Scroll to newest message
-		$("#messages").scrollTop($("#messages")[0].scrollHeight);
+		// $("#long_messages").scrollTop($("#long_messages")[0].scrollHeight);
+		// $("#short_messages").scrollTop($("#short_messages")[0].scrollHeight);
 	};
 
 	ws.onclose = function(evt) {
@@ -59,7 +60,7 @@ $(document).ready(function(evt) {
 })
 
 function AppendMessage(data) {
-
+	var destination_div;
 	var html_message =  "<div class='message_post' id='message_post_wrapper_" + whatsup.post_num + "'>" + 
 						"<div class ='h6' id='message_post_user'>" +
 						data.user + " : " + data.ts + " " + whatsup.post_num +
@@ -70,7 +71,16 @@ function AppendMessage(data) {
 						"</div>" +
 						"</div>";
 
-	get("messages").innerHTML += html_message;
+	if (data.msg.length < 18) {
+		destination_div = "short_messages";
+	}
+	else
+		destination_div = "long_messages";
+
+	var msg_div = get(destination_div);
+
+	msg_div.innerHTML = html_message + msg_div.innerHTML;
+	msg_div.scrollTop = 0;
 
 	$(".message_post").click(function() {
 		var element = event.target.id

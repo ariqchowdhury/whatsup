@@ -8,7 +8,27 @@ html, body {
 	width: 75%;
 	margin-left: 15px;
 	margin-right: 15px;
+	padding: 0px;
+}
 
+.message_divider {
+	background-color: green;
+	margin: 0px;
+	height: 100%;
+	opacity: 0.4;
+	overflow: auto;
+}
+
+#long_messages {
+	width: 66.7%;
+	float: left;
+}
+
+
+#short_messages {
+	width: 33.3%;
+	float: right;
+	background-color: red;
 }
 
 .ch_right_panel {
@@ -16,7 +36,7 @@ html, body {
 }
 
 #messages {
-	overflow: auto;
+	
 }
 
 .message_post {
