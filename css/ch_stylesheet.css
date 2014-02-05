@@ -17,7 +17,7 @@ html, body {
 	margin: 0px;
 	height: 100%;
 	opacity: 0.4;
-	overflow: auto;
+	overflow: hidden;
 }
 
 #long_messages {
@@ -51,8 +51,8 @@ html, body {
 	float: left;
 	clear: left;
 	/*animation: fadein 0.5s;*/
-	animation: slideInBottom 1s;
-	-webkit-animation: slideInBottom 1s;
+	animation: slideInBottom 3s;
+	-webkit-animation: slideInBottom 3s;
 	/*-webkit-animation: fadein 0.5s;*/
 
 }
@@ -77,23 +77,19 @@ html, body {
 
 @keyframes slideInBottom {
 	from {
-		opacity: 0;
 		transform: translateY(-2000px);
 	}
 	to {
-		opacity: 1;
 		transform: translateY(0);
 	}
 }
 
 @-webkit-keyframes slideInBottom {
 	from {
-		opacity: 0;
-		transform: translateY(-2000px);
+		-webkit-transform: translateY(2000px);
 	}
 	to {
-		opacity: 1;
-		transform: translateY(0);
+		-webkit-transform: translateY(0);
 	}
 }
 

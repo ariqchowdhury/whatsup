@@ -82,7 +82,8 @@ function AppendMessage(data) {
 
 	var msg_div = get(destination_div);
 	// Prepend new message to message box
-	msg_div.insertBefore(new_div, msg_div.firstChild);
+	msg_div.appendChild(new_div);
+	// Scroll to the top to newest message when the message box overflows
 	msg_div.scrollTop = 0;
 
 	$(".message_post").click(function() {
