@@ -51,8 +51,8 @@ html, body {
 	float: left;
 	clear: left;
 	/*animation: fadein 0.5s;*/
-	animation: slideInBottom 3s;
-	-webkit-animation: slideInBottom 3s;
+	animation: slideInBottom 1s;
+	-webkit-animation: slideInBottom 1s;
 	/*-webkit-animation: fadein 0.5s;*/
 
 }

@@ -1,7 +1,7 @@
 window.whatsup = {}
 whatsup.post_num = 0;
 
-function get (el) {
+function get_element (el) {
 	if (typeof el == 'string') return document.getElementById(el);
 	return el;
 }
@@ -32,13 +32,9 @@ $(document).ready(function(evt) {
 		else {
 			AppendMessage(data);	
 		}
-		// Add message to message box
 		
 		console.log(new Date().getTime());
 
-		// Scroll to newest message
-		// $("#long_messages").scrollTop($("#long_messages")[0].scrollHeight);
-		// $("#short_messages").scrollTop($("#short_messages")[0].scrollHeight);
 	};
 
 	ws.onclose = function(evt) {
@@ -79,8 +75,9 @@ function AppendMessage(data) {
 
 	var new_div = document.createElement('div');
 	new_div.innerHTML = html_message;
+	new_div.style.marginLeft= (Math.floor(Math.random()* 45)).toString() + "%";
 
-	var msg_div = get(destination_div);
+	var msg_div = get_element(destination_div);
 	// Prepend new message to message box
 	msg_div.appendChild(new_div);
 	// Scroll to the top to newest message when the message box overflows
@@ -90,7 +87,7 @@ function AppendMessage(data) {
 		var element = event.target.id
 		
 		if (String(element).indexOf("wrapper") != -1) {
-			get(element).parentNode.removeChild(get(element));
+			get_element(element).parentNode.removeChild(get_element(element));
 		}		
 	})
 
