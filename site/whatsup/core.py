@@ -4,7 +4,6 @@ import tcelery
 import redis
 
 from whatsup.cookies import Cookies
-from whatsup.task_queue import generate_frontpage
 from whatsup.task_queue import DecodeGenerateFrontpage
 
 PATH_TO_SITE = "../"

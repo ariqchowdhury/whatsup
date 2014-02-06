@@ -41,7 +41,7 @@ class DatabaseTask(Task):
 			self._db.set_keyspace(KEYSPACE)
 		return self._db
 
-def SanitizeCassRows(cass_rows):
+def sanitize_cass_rows(cass_rows):
 	myrows = []
 
 	for row in cass_rows:
@@ -66,47 +66,47 @@ def write_to_db(user, msg, src, comment_id):
 		""" % (comment_id, src))
 
 @app.task(base=DatabaseTask)
-def CreateChannel(title, tag, length, dmy, hour, user, ch_id, url):
-	CreateChannel.db.execute("""
+def create_channel(title, tag, length, dmy, hour, user, ch_id, url):
+	create_channel.db.execute("""
 			INSERT INTO channels (id, dmy, start, ts, len, user, title, tag, url)
 			VALUES (%s, '%s', '%s', dateof(now()), %s, '%s', '%s', '%s', '%s');
 			""" % (ch_id, dmy, dmy+" "+hour, length, user, title, tag, url))
 
-	CreateChannel.db.execute("""
+	create_channel.db.execute("""
 		INSERT INTO channels_by_id (id, dmy, start, ts, len, user, title, tag, url)
 		VALUES (%s, '%s', '%s', dateof(now()), %s, '%s', '%s', '%s', '%s');
 		""" % (ch_id, dmy, dmy+" "+hour, length, user, title, tag, url))
 
-	CreateChannel.db.execute("INSERT INTO user_channel_index (user, ch_id) VALUES ('%s', %s);" % (user, ch_id))
+	create_channel.db.execute("INSERT INTO user_channel_index (user, ch_id) VALUES ('%s', %s);" % (user, ch_id))
 
 @app.task(base=DatabaseTask)
 def generate_frontpage(date):
 	rows = generate_frontpage.db.execute("SELECT title, tag, start, url, dmy FROM channels WHERE dmy='%s' ORDER BY start;" % date)
-	return SanitizeCassRows(rows)
+	return sanitize_cass_rows(rows)
 
 @app.task(base=DatabaseTask)
 def get_hashed_pswd(username):
 	rows = get_hashed_pswd.db.execute("SELECT salt, pswd FROM users where user='%s'" % username)
-	return SanitizeCassRows(rows)
+	return sanitize_cass_rows(rows)
 
 @app.task
 def verify_password(salted_pswd, hashed_pswd):
 	return pwd_context.verify(salted_pswd, hashed_pswd)
 
 @app.task
-def EncryptPassword(salted_pswd):
+def encrypt_password(salted_pswd):
 	return pwd_context.encrypt(salted_pswd)
 
 @app.task(base=DatabaseTask)
-def DoesUserExist(username):
-	rows = DoesUserExist.db.execute("SELECT * FROM users where user='%s'" % username)
-	return SanitizeCassRows(rows)
+def does_user_exist(username):
+	rows = does_user_exist.db.execute("SELECT * FROM users where user='%s'" % username)
+	return sanitize_cass_rows(rows)
 
 @app.task(base=DatabaseTask)
-def AddUser(username, salt, hash, email):
-	AddUser.db.execute("INSERT INTO users (user, salt, pswd, email) VALUES ('%s', '%s', '%s', '%s');" % (username, salt, hash, email))
+def add_user(username, salt, hash, email):
+	add_user.db.execute("INSERT INTO users (user, salt, pswd, email) VALUES ('%s', '%s', '%s', '%s');" % (username, salt, hash, email))
 
 @app.task(base=DatabaseTask)
-def GetChannelTitleFromId(ch_id):
-	rows = GetChannelTitleFromId.db.execute("SELECT title from channels_by_id WHERE id=%s" % ch_id)
-	return SanitizeCassRows(rows)
+def get_channel_title_from_id(ch_id):
+	rows = get_channel_title_from_id.db.execute("SELECT title from channels_by_id WHERE id=%s" % ch_id)
+	return sanitize_cass_rows(rows)

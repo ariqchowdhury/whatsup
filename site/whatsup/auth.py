@@ -7,9 +7,9 @@ from whatsup.task_queue import get_hashed_pswd
 from whatsup.task_queue import DecodeGetHashedPswd
 
 from whatsup.task_queue import verify_password
-from whatsup.task_queue import DoesUserExist
-from whatsup.task_queue import AddUser
-from whatsup.task_queue import EncryptPassword
+from whatsup.task_queue import does_user_exist
+from whatsup.task_queue import add_user
+from whatsup.task_queue import encrypt_password
 
 import whatsup.core
 from whatsup.cookies import Cookies
@@ -53,7 +53,7 @@ class RegisterHandler(whatsup.core.BaseHandler):
 		username = self.get_argument("username")
 
 		# Check if user already exists in database
-		response = yield gen.Task(DoesUserExist.apply_async, args=[username])
+		response = yield gen.Task(does_user_exist.apply_async, args=[username])
 
 		rows = response.result
 		# If not, insert into database, else report username taken
@@ -61,9 +61,9 @@ class RegisterHandler(whatsup.core.BaseHandler):
 			# insert user/pass into database
 			email = self.get_argument("email")
 			salt = urandom(16).encode('base_64').rstrip('=\n')
-			hash = yield gen.Task(EncryptPassword.apply_async, args=[salt+self.get_argument("password")])
+			hash = yield gen.Task(encrypt_password.apply_async, args=[salt+self.get_argument("password")])
 			
-			yield gen.Task(AddUser.apply_async, args=[username, salt, hash.result, email])
+			yield gen.Task(add_user.apply_async, args=[username, salt, hash.result, email])
 			self.set_secure_cookie(Cookies.LoginUsername, username)
 		else:
 			# set some variable to show username taken

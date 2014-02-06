@@ -5,7 +5,7 @@ import tornado.web
 import tornado.websocket
 from tornado import gen
 
-from whatsup.task_queue import write_to_db, GetChannelTitleFromId, DecodeGetChannelTitleFromId, CreateChannel
+from whatsup.task_queue import write_to_db, get_channel_title_from_id, DecodeGetChannelTitleFromId, create_channel
 import whatsup.core
 
 PATH_TO_SITE = "../"
@@ -44,7 +44,7 @@ class ChannelHandler(whatsup.core.BaseHandler):
 			ch_id = url
 			rows = None
 		else:
-			response = yield gen.Task(GetChannelTitleFromId.apply_async, args=[ch_id])
+			response = yield gen.Task(get_channel_title_from_id.apply_async, args=[ch_id])
 			rows = response.result
 
 		if not rows:
@@ -71,6 +71,6 @@ class CreateChannelHandler(whatsup.core.BaseHandler):
 		#timestamp will just use cassandra getdate(now())
 		# Need to insert into all channel column families, see: db_sechma for columns
 
-		yield gen.Task(CreateChannel.apply_async, args=[title, tag, length, dmy, hour, user, ch_id, url])
+		yield gen.Task(create_channel.apply_async, args=[title, tag, length, dmy, hour, user, ch_id, url])
 
 		self.redirect("/ch/%s" % url)
