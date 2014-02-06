@@ -55,29 +55,33 @@ def sanitize_cass_rows(cass_rows):
 @app.task(base=DatabaseTask)
 def write_to_db(user, msg, src, comment_id):
 	
-	write_to_db.db.execute("""
-		INSERT INTO comment (id, user, data, score, ts)
-		VALUES (%s, '%s', %s, 0, dateof(now()));
-		""" % (comment_id, user, msg))
+	insert_into_comment = ("INSERT INTO comment (id, user, data, score, ts) "
+						   "VALUES (%s, '%s', %s, 0, dateof(now())) "
+						   % (comment_id, user, msg))
 
-	write_to_db.db.execute("""
-		INSERT INTO comment_channel_index (cmnt_id, ch_id)
-		VALUES (%s, %s);
-		""" % (comment_id, src))
+	insert_into_comment_channel_index = ("INSERT INTO comment_channel_index (cmnt_id, ch_id) "
+										 "VALUES (%s, %s) "
+										 % (comment_id, src))
+	
+	batch_cmd = ["BEGIN BATCH ", insert_into_comment, insert_into_comment_channel_index, "APPLY BATCH;"]
+
+	write_to_db.db.execute(''.join(batch_cmd))
 
 @app.task(base=DatabaseTask)
 def create_channel(title, tag, length, dmy, hour, user, ch_id, url):
-	create_channel.db.execute("""
-			INSERT INTO channels (id, dmy, start, ts, len, user, title, tag, url)
-			VALUES (%s, '%s', '%s', dateof(now()), %s, '%s', '%s', '%s', '%s');
-			""" % (ch_id, dmy, dmy+" "+hour, length, user, title, tag, url))
+	insert_into_channels = ("INSERT INTO channels (id, dmy, start, ts, len, user, title, tag, url) "
+							"VALUES (%s, '%s', '%s', dateof(now()), %s, '%s', '%s', '%s', '%s') "
+							% (ch_id, dmy, dmy+" "+hour, length, user, title, tag, url))
 
-	create_channel.db.execute("""
-		INSERT INTO channels_by_id (id, dmy, start, ts, len, user, title, tag, url)
-		VALUES (%s, '%s', '%s', dateof(now()), %s, '%s', '%s', '%s', '%s');
-		""" % (ch_id, dmy, dmy+" "+hour, length, user, title, tag, url))
+	insert_into_channels_by_id = ("INSERT INTO channels_by_id (id, dmy, start, ts, len, user, title, tag, url) "
+								  "VALUES (%s, '%s', '%s', dateof(now()), %s, '%s', '%s', '%s', '%s') "
+								  % (ch_id, dmy, dmy+" "+hour, length, user, title, tag, url))
 
-	create_channel.db.execute("INSERT INTO user_channel_index (user, ch_id) VALUES ('%s', %s);" % (user, ch_id))
+	insert_into_user_channel_index = ("INSERT INTO user_channel_index (user, ch_id) VALUES ('%s', %s) "
+									  % (user, ch_id))
+
+	batch_cmd = ["BEGIN BATCH ", insert_into_channels, insert_into_channels_by_id, insert_into_user_channel_index, "APPLY BATCH;"]
+	create_channel.db.execute(''.join(batch_cmd))
 
 @app.task(base=DatabaseTask)
 def generate_frontpage(date):
