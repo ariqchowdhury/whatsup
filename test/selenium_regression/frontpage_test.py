@@ -4,7 +4,7 @@ import unittest
 
 IP_ADDRESS = 'http://localhost:8888'
 
-class NewUserTest(unittest.TestCase):
+class FrontpageTest(unittest.TestCase):
 	def setUp(self):
 		self.browser = webdriver.Firefox()
 		self.browser.implicitly_wait(3)
