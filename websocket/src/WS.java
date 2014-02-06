@@ -99,14 +99,8 @@ public class WS extends BaseWebSocketHandler {
 			
 			final WebSocketConnection conn = connection;
 				
-			long startTime = System.currentTimeMillis();
-			
 			ParaBroadcastMsg(json_outgoing_message, src);
 			
-			long stopTime = System.currentTimeMillis();
-			long elapsedTime = stopTime - startTime;
-			System.out.println(elapsedTime+"ms");
-								
 			// sanitized msg should escape out string quotes
 			String sanitized_msg = "\'" + msg + "\'";
 			
