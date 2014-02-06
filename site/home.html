@@ -17,13 +17,13 @@
 				<div class="col-md-8">
 					
 					<div class="panel panel-primary">
-						<div class="panel-heading"><h4>Featured</h4></div>
+						<div class="panel-heading" id="featured_list"><h4>Featured</h4></div>
 						{% for ch in flist %}
-							<a href={{ "ch/"+ch[decode.url]}} class="list-group-item">
-								<h4 class="list-group-item-heading">{{ ch[decode.title].replace("2014", "") }}</h4>
-								<span class="badge">{{ ch[decode.start] }} UTC</span>
-								<p class="list-group-item-text">DESCRIPTION</p>
-								<span class="label label-danger">#{{ch[decode.tag]}}</span>
+							<a href={{ "ch/"+ch[decode.url]}} class="list-group-item link_for_channel">
+								<h4 class="list-group-item-heading channel_title">{{ ch[decode.title].replace("2014", "") }}</h4>
+								<span class="badge channel_start_time">{{ ch[decode.start] }} UTC</span>
+								<p class="list-group-item-text channel_description">DESCRIPTION</p>
+								<span class="label label-danger channel_tag">#{{ch[decode.tag]}}</span>
 							</a>
 						{% end %}
 					</div>					
@@ -92,13 +92,13 @@
 				<div class="col-md-8">
 
 					<div class="panel panel-primary">
-						<div class="panel-heading"><h4>All</h4></div>
+						<div class="panel-heading" id="all_list"><h4>All</h4></div>
 						{% for ch in flist %}
-							<a href={{ "ch/"+ch[decode.url]}} class="list-group-item">
-								<h4 class="list-group-item-heading">{{ ch[decode.title].replace("2014", "") }}</h4>
-								<span class="badge">{{ ch[decode.start] }} UTC</span>
-								<p class="list-group-item-text">DESCRIPTION</p>
-								<span class="label label-danger">#{{ch[decode.tag]}}</span>
+							<a href={{ "ch/"+ch[decode.url]}} class="list-group-item link_for_channel">
+								<h4 class="list-group-item-heading channel_title">{{ ch[decode.title].replace("2014", "") }}</h4>
+								<span class="badge channel_start_time">{{ ch[decode.start] }} UTC</span>
+								<p class="list-group-item-text channel_description">DESCRIPTION</p>
+								<span class="label label-danger channel_tag">#{{ch[decode.tag]}}</span>
 							</a>
 						{% end %}
 					</div>				
