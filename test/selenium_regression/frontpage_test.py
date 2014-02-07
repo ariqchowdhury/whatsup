@@ -1,6 +1,9 @@
+import unittest
+
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
-import unittest
+
+from login_helper import whatsup_login
 
 IP_ADDRESS = 'http://localhost:8888'
 
@@ -39,18 +42,19 @@ class FrontpageTest(unittest.TestCase):
 		self.browser.get(IP_ADDRESS)
 
 		# login to website using test account
-		username_ele = self.browser.find_element_by_name("username")
-		password_ele = self.browser.find_element_by_name("password")
-		submit_login_ele = self.browser.find_element_by_id("signin")
+		# username_ele = self.browser.find_element_by_name("username")
+		# password_ele = self.browser.find_element_by_name("password")
+		# submit_login_ele = self.browser.find_element_by_id("signin")
 
-		self.assertIsNotNone(username_ele)
-		self.assertIsNotNone(password_ele)
-		self.assertIsNotNone(submit_login_ele)
+		# username_ele.send_keys("Ironman")
+		# password_ele.send_keys("jarvis")
 
-		username_ele.send_keys("Ironman")
-		password_ele.send_keys("jarvis")
+		# submit_login_ele.click()
 
-		submit_login_ele.click()
+		try:
+			whatsup_login(self.browser, "Ironman", "jarvis")
+		except NoSuchElementException:
+			self.assertTrue(False)
 
 		# check that the navbar displays the username and register
 		# form is removed
@@ -63,7 +67,13 @@ class FrontpageTest(unittest.TestCase):
 		except NoSuchElementException:
 			self.assertTrue(True)
 		else:
-			self.assertFalse(False)
+			self.assertTrue(False)
+
+		# Confirm user got the login cookie
+		self.assertIsNotNone(self.browser.get_cookie("whatsup_user_login"))
+
+	def test_logout(self):
+		pass
 
 if __name__ == '__main__':
 	unittest.main()

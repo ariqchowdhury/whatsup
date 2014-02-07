@@ -1,2 +1,2 @@
 class Cookies:
-	LoginUsername = "cryhavokandletslipthedogsofwar"
+	LoginUsername = "whatsup_user_login"
