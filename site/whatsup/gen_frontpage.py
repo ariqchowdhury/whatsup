@@ -21,6 +21,8 @@ if __name__ == "__main__":
 	rows = generate_frontpage.delay('2014-01-07')
 	flist = rows.get()
 
+	system("redis-cli KEYS 'featured:*' | xargs redis-cli DEL")
+
 	for i, item in enumerate(flist):
 		r.set("featured:%s:title" % i, "%s" % item[decode.title])
 		r.set("featured:%s:tag" % i, "%s" % item[decode.tag])
