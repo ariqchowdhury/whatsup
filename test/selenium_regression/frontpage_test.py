@@ -41,16 +41,6 @@ class FrontpageTest(unittest.TestCase):
 	def test_login(self):
 		self.browser.get(IP_ADDRESS)
 
-		# login to website using test account
-		# username_ele = self.browser.find_element_by_name("username")
-		# password_ele = self.browser.find_element_by_name("password")
-		# submit_login_ele = self.browser.find_element_by_id("signin")
-
-		# username_ele.send_keys("Ironman")
-		# password_ele.send_keys("jarvis")
-
-		# submit_login_ele.click()
-
 		try:
 			whatsup_login(self.browser, "Ironman", "jarvis")
 		except NoSuchElementException:
@@ -73,7 +63,20 @@ class FrontpageTest(unittest.TestCase):
 		self.assertIsNotNone(self.browser.get_cookie("whatsup_user_login"))
 
 	def test_logout(self):
-		pass
+		self.browser.get(IP_ADDRESS)
+
+		try:
+			whatsup_login(self.browser, "Ironman", "jarvis")
+		except NoSuchElementException:
+			self.assertTrue(False)
+
+		profile_menu = self.browser.find_element_by_id("user_dropdown")
+		profile_menu.click()	
+
+		logout_ele = self.browser.find_element_by_id("logout_link")
+		logout_ele.click()
+
+		self.assertIsNone(self.browser.get_cookie("whatsup_user_login"))
 
 if __name__ == '__main__':
 	unittest.main()
