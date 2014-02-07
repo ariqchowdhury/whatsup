@@ -19,7 +19,7 @@ class ChannelTest(BaseWhatsupTester):
 		self.browser.get(IP_ADDRESS)
 
 		try:
-			self.whatsup_login("Ironman", "jarvis")
+			self.whatsup_login("tester", "tester")
 		except NoSuchElementException:
 			self.assertTrue(False)
 

@@ -16,15 +16,15 @@
 			<div class="row">
 				<div class="col-md-8">
 					
-					<div class="panel panel-primary">
-						<div class="panel-heading" id="featured_list"><h4>Featured</h4></div>
+					<div class="panel panel-primary" id="featured_list">
+						<div class="panel-heading"><h4>Featured</h4></div>
 						{% for ch in flist %}
-							<a href={{ "ch/"+ch[decode.url]}} class="list-group-item link_for_channel">
-								<h4 class="list-group-item-heading channel_title">{{ ch[decode.title].replace("2014", "") }}</h4>
-								<span class="badge channel_start_time">{{ ch[decode.start] }} UTC</span>
-								<p class="list-group-item-text channel_description">DESCRIPTION</p>
-								<span class="label label-danger channel_tag">#{{ch[decode.tag]}}</span>
-							</a>
+						<a href={{ "ch/"+ch[decode.url]}} class="list-group-item link_for_channel">
+							<h4 class="list-group-item-heading channel_title">{{ ch[decode.title].replace("2014", "") }}</h4>
+							<span class="badge channel_start_time">{{ ch[decode.start] }} UTC</span>
+							<p class="list-group-item-text channel_description">DESCRIPTION</p>
+							<span class="label label-danger channel_tag">#{{ch[decode.tag]}}</span>
+						</a>
 						{% end %}
 					</div>					
 
@@ -46,7 +46,7 @@
 							<div class="form-group">
 								<select name="length">
 									{% for i in range(1,9) %}
-										<option value="{{i}}">{{i}} hour(s)</option>
+									<option value="{{i}}">{{i}} hour(s)</option>
 									{% end %}		
 								</select>
 							</div>
@@ -56,7 +56,7 @@
 							<div class="form-group">
 								<select name="hour" id="hour dropdown">
 									{% for i in range(0,24) %}
-										<option value="{{i}}:00">{{i}}:00</option>
+									<option value="{{i}}:00">{{i}}:00</option>
 									{% end %}
 								</select>		
 							</div>
@@ -91,15 +91,15 @@
 			<div class="row">
 				<div class="col-md-8">
 
-					<div class="panel panel-primary">
-						<div class="panel-heading" id="all_list"><h4>All</h4></div>
+					<div class="panel panel-primary" id="all_list">
+						<div class="panel-heading"><h4>All</h4></div>
 						{% for ch in flist %}
-							<a href={{ "ch/"+ch[decode.url]}} class="list-group-item link_for_channel">
-								<h4 class="list-group-item-heading channel_title">{{ ch[decode.title].replace("2014", "") }}</h4>
-								<span class="badge channel_start_time">{{ ch[decode.start] }} UTC</span>
-								<p class="list-group-item-text channel_description">DESCRIPTION</p>
-								<span class="label label-danger channel_tag">#{{ch[decode.tag]}}</span>
-							</a>
+						<a href={{ "ch/"+ch[decode.url]}} class="list-group-item link_for_channel">
+							<h4 class="list-group-item-heading channel_title">{{ ch[decode.title].replace("2014", "") }}</h4>
+							<span class="badge channel_start_time">{{ ch[decode.start] }} UTC</span>
+							<p class="list-group-item-text channel_description">DESCRIPTION</p>
+							<span class="label label-danger channel_tag">#{{ch[decode.tag]}}</span>
+						</a>
 						{% end %}
 					</div>				
 

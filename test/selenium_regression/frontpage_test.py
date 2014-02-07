@@ -17,27 +17,28 @@ class FrontpageTest(BaseWhatsupTester):
 	def test_featured_list(self):
 		self.browser.get(IP_ADDRESS)
 
-		# featured_list = self.browser.find_element_by_id("featured_list")
-		list_elements = self.browser.find_elements_by_class_name("channel_title")
+		featured_list = self.browser.find_element_by_id("featured_list")
+		list_elements = featured_list.find_elements_by_class_name("link_for_channel")
 
 		for i, ele in enumerate(list_elements):
-			print list_elements[i].text
-			self.assertEqual("Channel %s" % (i+1), list_elements[i].text)
+			title_element = list_elements[i].find_element_by_class_name("channel_title")
+			self.assertEqual("Channel %s" % (i+1), title_element.text)
 
 	def test_all_list(self):
 		self.browser.get(IP_ADDRESS)
 
 		all_list = self.browser.find_element_by_id("all_list")
-		list_elements = all_list.find_elements_by_class_name("channel_title")
+		list_elements = all_list.find_elements_by_class_name("link_for_channel")
 
 		for i, ele in enumerate(list_elements):
-			self.assertEqual("Channel %s" % i, list_elements[i].text)
+			title_element = list_elements[i].find_element_by_class_name("channel_title")
+			self.assertEqual("Channel %s" % (i+1), title_element.text)
 
 	def test_login(self):
 		self.browser.get(IP_ADDRESS)
 
 		try:
-			self.whatsup_login("Ironman", "jarvis")
+			self.whatsup_login("tester", "tester")
 		except NoSuchElementException:
 			self.assertTrue(False)
 
@@ -45,7 +46,7 @@ class FrontpageTest(BaseWhatsupTester):
 		# form is removed
 		user_dropdown = self.browser.find_element_by_id("user_dropdown")
 
-		self.assertEqual(user_dropdown.text, "Ironman")
+		self.assertEqual(user_dropdown.text, "tester")
 
 		try:
 			register_form = self.browser.find_element_by_id("register_form")
@@ -61,7 +62,7 @@ class FrontpageTest(BaseWhatsupTester):
 		self.browser.get(IP_ADDRESS)
 
 		try:
-			self.whatsup_login("Ironman", "jarvis")
+			self.whatsup_login("tester", "tester")
 		except NoSuchElementException:
 			self.assertTrue(False)
 
