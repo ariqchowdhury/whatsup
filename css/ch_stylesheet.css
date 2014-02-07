@@ -62,6 +62,10 @@ html, body {
 
 }
 
+.long_message_post {
+	clear: left;
+}
+
 @keyframes fadein {
 	from {
 		opacity: 0;
