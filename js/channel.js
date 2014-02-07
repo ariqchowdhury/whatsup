@@ -29,6 +29,8 @@ $(document).ready(function(evt) {
 		}
 	})
 
+
+
 })
 
 function SetupWebsocket(server, id) {
@@ -90,7 +92,6 @@ function AppendMessage(data) {
 	var destination_div;
 	var is_short_msg = (data.msg.length < 18);
 
-
 	var html_message_root_class;
 
 	if (is_short_msg) {
@@ -101,17 +102,16 @@ function AppendMessage(data) {
 	}
 
 	var html_message =  html_message_root_class + whatsup.post_num + "'>" + 
-						"<div class ='h6 glow' id='message_post_user'>" +
+						"<div class ='h6 glow message_post_user' id='message_post_user_" + whatsup.post_num + "'>" +
 						data.user + " : " + data.ts + " " + whatsup.post_num +
 						"</div>" +
-						"<div class='glow' id='message_post_msg'>" +
+						"<div class='glow message_post_msg' id='message_post_msg_" + whatsup.post_num + "'>" +
 						data.msg +
 						"</div>" + 
 						"</div>" +
 						"</div>";
 
 	var new_div = document.createElement('div');
-	
 	
 	if (is_short_msg) {
 		destination_div = "short_messages_grid";
@@ -128,15 +128,27 @@ function AppendMessage(data) {
 	// Scroll to the top to newest message when the message box overflows
 	msg_div.scrollTop = 0;
 
-	$(".message_post").click(function() {
-		var element = event.target.id
+	AddMessageElementHandlers();
+
+	whatsup.post_num++;
+}
+
+function AddMessageElementHandlers() {
+	$("#message_post_wrapper_" + whatsup.post_num).click(function() {
+		var element = event.target.id;
 		
+		// Check that the element name has 'wrapper' in it, so we know we clicked that and not
+		// the text or user name divs of the element
+		// This is needed because a click on a child element seems to go through to the parent as well
 		if (String(element).indexOf("wrapper") != -1) {
-			get_element(element).parentNode.removeChild(get_element(element));
+			this.parentNode.removeChild(this);
 		}		
 	})
 
-	whatsup.post_num++;
+	$('#message_post_user_' + whatsup.post_num).on("click", function() {
+		alert('sdofij');
+	})
+
 }
 
 function UpdateUserCount(data) {
