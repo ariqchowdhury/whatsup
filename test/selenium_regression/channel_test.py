@@ -1,6 +1,7 @@
 import unittest
 
 from selenium import webdriver
+from selenium.common.exceptions import NoSuchElementException
 
 from base_tester import BaseWhatsupTester
 
@@ -24,17 +25,35 @@ class ChannelTest(BaseWhatsupTester):
 			self.assertTrue(False)
 
 		featured_list = self.browser.find_element_by_id("featured_list")
-		list_elements = featured_list.find_elements_by_class_name("channel_title")
+		list_elements = featured_list.find_elements_by_class_name("link_for_channel")
 
-		print list_elements
+		title_element = list_elements[0].find_element_by_class_name("channel_title")
 
-		# list_elements[0].click()
+		title_element.click()
 
-		# sendMsg("short test")
-		# short_msg_box = self.browser.find_element_by_id("short_messages_grid")
-		# msg = short_msg_box.find_element_by_id("message_post_wrapper_1").find_element_by_id("message_post_msg").text
-		# print msg
+		self.sendMsg("short test")
+		short_msg_box = self.browser.find_element_by_id("short_messages_grid")
+		
+		try:
+			msg = short_msg_box.find_element_by_id("message_post_wrapper_0").find_element_by_id("message_post_msg").text
+		except NoSuchElementException:
+			self.assertTrue(False)
 
+		self.sendMsg("short test")
+		self.sendMsg("short test")
+		self.sendMsg("short test")
+		self.sendMsg("short test")
+
+		self.sendMsg("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum tempus ipsum sed leo convallis, eu interdum metus luctus.")
+		self.sendMsg("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum tempus ipsum sed leo convallis, eu interdum metus luctus.")
+		
+		short_msg_box = self.browser.find_element_by_id("short_messages_grid")
+		short_msg_list = short_msg_box.find_elements_by_class_name("message_post")
+		self.assertEqual(len(short_msg_list), 5)
+
+		long_msg_box = self.browser.find_element_by_id("long_messages")
+		long_msg_list = long_msg_box.find_elements_by_class_name("message_post")
+		self.assertEqual(len(long_msg_list), 2)
 
 if __name__ == '__main__':
 	unittest.main()
