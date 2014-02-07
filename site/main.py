@@ -11,6 +11,14 @@ import whatsup.channel
 # Server settings
 MAIN_PORT = 8888
 
+settings = {
+	"debug": True,
+	"static_path":os.path.join(os.path.dirname(__file__), "../"),
+	"cookie_secret": "Thisabovealltothineownselfbetrue",
+	"xsrf_cookies": True,
+	"gzip": True,
+}
+
 # Handlers and settings passed to web application
 handlers = [
 	(r"/", whatsup.core.HomeHandler),
@@ -21,14 +29,6 @@ handlers = [
 	(r"/register", whatsup.auth.RegisterHandler),
 	(r"/logout", whatsup.auth.LogoutHandler),
 ]
-
-settings = {
-	"debug": True,
-	"static_path":os.path.join(os.path.dirname(__file__), "../"),
-	"cookie_secret": "Thisabovealltothineownselfbetrue",
-	"xsrf_cookies": True,
-	"gzip": True,
-}
 
 application = tornado.web.Application(handlers, **settings)
 

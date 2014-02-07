@@ -57,7 +57,19 @@ $(document).ready(function(evt) {
 
 function AppendMessage(data) {
 	var destination_div;
-	var html_message =  "<div class='message_post' id='message_post_wrapper_" + whatsup.post_num + "'>" + 
+	var is_short_msg = (data.msg.length < 18);
+
+
+	var html_message_root_class;
+
+	if (is_short_msg) {
+		html_message_root_class = "<div class='message_post short_message_post' id='message_post_wrapper_";
+	}
+	else {
+		html_message_root_class = "<div class='message_post long_message_post' id='message_post_wrapper_";
+	}
+
+	var html_message =  html_message_root_class + whatsup.post_num + "'>" + 
 						"<div class ='h6 glow' id='message_post_user'>" +
 						data.user + " : " + data.ts + " " + whatsup.post_num +
 						"</div>" +
@@ -70,7 +82,7 @@ function AppendMessage(data) {
 	var new_div = document.createElement('div');
 	
 	
-	if (data.msg.length < 18) {
+	if (is_short_msg) {
 		destination_div = "short_messages_grid";
 		new_div.style.marginLeft= (Math.floor(Math.random()* 18)).toString() + "%";
 		html_message = "<li>" + html_message + "</li>";
