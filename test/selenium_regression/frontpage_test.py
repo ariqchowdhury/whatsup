@@ -3,7 +3,7 @@ import unittest
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
 
-from login_helper import BaseWhatsupTester
+from base_tester import BaseWhatsupTester
 
 IP_ADDRESS = 'http://localhost:8888'
 
@@ -17,11 +17,12 @@ class FrontpageTest(BaseWhatsupTester):
 	def test_featured_list(self):
 		self.browser.get(IP_ADDRESS)
 
-		featured_list = self.browser.find_element_by_id("featured_list")
-		list_elements = featured_list.find_elements_by_class_name("channel_title")
+		# featured_list = self.browser.find_element_by_id("featured_list")
+		list_elements = self.browser.find_elements_by_class_name("channel_title")
 
 		for i, ele in enumerate(list_elements):
-			self.assertEqual("Channel %s" % i, list_elements[i].text)
+			print list_elements[i].text
+			self.assertEqual("Channel %s" % (i+1), list_elements[i].text)
 
 	def test_all_list(self):
 		self.browser.get(IP_ADDRESS)

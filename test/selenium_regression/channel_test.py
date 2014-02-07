@@ -2,7 +2,7 @@ import unittest
 
 from selenium import webdriver
 
-from login_helper import BaseWhatsupTester
+from base_tester import BaseWhatsupTester
 
 IP_ADDRESS = 'http://localhost:8888'
 
