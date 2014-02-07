@@ -15,8 +15,24 @@ $(document).ready(function(evt) {
 	var id = $("#ch_id").text();
 	var user = $("#user").text();
 	
-	ws = new WebSocket("ws://" + host + ":" + port + uri);
+	ws = SetupWebsocket("ws://" + host + ":" + port + uri, id);
 
+	$("#send").click(function() {
+		SendMessage(ws, id, user);
+	})
+
+	$(document).keypress(function(event) {
+		// If key pressed is 'enter'
+		if (event.keyCode == 13 && !event.shiftKey) {
+			event.preventDefault();
+			SendMessage(ws, id, user);
+		}
+	})
+
+})
+
+function SetupWebsocket(server, id) {
+	var ws = new WebSocket(server);
 
 	ws.onopen = function(evt) {
 		SendInitMessage(ws, id);
@@ -41,19 +57,34 @@ $(document).ready(function(evt) {
 		
 	}
 
-	$("#send").click(function() {
-		SendMessage(ws, id, user);
-	})
+	return ws;
+}
 
-	$(document).keypress(function(event) {
-		// If key pressed is 'enter'
-		if (event.keyCode == 13 && !event.shiftKey) {
-			event.preventDefault();
-			SendMessage(ws, id, user);
-		}
-	})
+// This function sends the text from the 'comment' textarea across the websocket
+function SendMessage(websocket, id, user) {
+	var comment = $("#comment").val();
 
-})
+	var msg = {
+		type: 'msg',
+		src: id, 
+		user: user,
+		msg: comment
+	}
+
+	websocket.send(JSON.stringify(msg));
+	$("#comment").val('');
+}
+
+function SendInitMessage(websocket, id) {
+
+	var msg = {
+		type: 'init', 
+		msg: id
+	}
+
+	websocket.send(JSON.stringify(msg));
+
+}
 
 function AppendMessage(data) {
 	var destination_div;
@@ -106,32 +137,6 @@ function AppendMessage(data) {
 	})
 
 	whatsup.post_num++;
-}
-
-// This function sends the text from the 'comment' textarea across the websocket
-function SendMessage(websocket, id, user) {
-	var comment = $("#comment").val();
-
-	var msg = {
-		type: 'msg',
-		src: id, 
-		user: user,
-		msg: comment
-	}
-
-	websocket.send(JSON.stringify(msg));
-	$("#comment").val('');
-}
-
-function SendInitMessage(websocket, id) {
-
-	var msg = {
-		type: 'init', 
-		msg: id
-	}
-
-	websocket.send(JSON.stringify(msg));
-
 }
 
 function UpdateUserCount(data) {

@@ -55,15 +55,17 @@ html, body {
 	margin: 5px;
 	white-space: pre-wrap;
 	float: left;
-	/*animation: fadein 0.5s;*/
-	animation: slideInBottom 1s;
-	-webkit-animation: slideInBottom 1s;
-	/*-webkit-animation: fadein 0.5s;*/
-
 }
 
 .long_message_post {
 	clear: left;
+	animation: fadein 0.5s;
+	-webkit-animation: fadein 0.5s;
+}
+
+.short_message_post {
+	animation: slideInBottom 1s;
+	-webkit-animation: slideInBottom 1s;
 }
 
 @keyframes fadein {
