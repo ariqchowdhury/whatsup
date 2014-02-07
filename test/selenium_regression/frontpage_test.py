@@ -3,17 +3,11 @@ import unittest
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
 
-from login_helper import whatsup_login
+from login_helper import BaseWhatsupTester
 
 IP_ADDRESS = 'http://localhost:8888'
 
-class FrontpageTest(unittest.TestCase):
-	def setUp(self):
-		self.browser = webdriver.Firefox()
-		self.browser.implicitly_wait(3)
-
-	def tearDown(self):
-		self.browser.quit()
+class FrontpageTest(BaseWhatsupTester):
 
 	def test_title(self):
 		self.browser.get(IP_ADDRESS)
@@ -42,7 +36,7 @@ class FrontpageTest(unittest.TestCase):
 		self.browser.get(IP_ADDRESS)
 
 		try:
-			whatsup_login(self.browser, "Ironman", "jarvis")
+			self.whatsup_login("Ironman", "jarvis")
 		except NoSuchElementException:
 			self.assertTrue(False)
 
@@ -66,7 +60,7 @@ class FrontpageTest(unittest.TestCase):
 		self.browser.get(IP_ADDRESS)
 
 		try:
-			whatsup_login(self.browser, "Ironman", "jarvis")
+			self.whatsup_login("Ironman", "jarvis")
 		except NoSuchElementException:
 			self.assertTrue(False)
 
