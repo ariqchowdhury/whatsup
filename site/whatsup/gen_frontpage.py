@@ -1,4 +1,5 @@
 import datetime
+from os import system
 
 import redis
 
@@ -17,7 +18,7 @@ if __name__ == "__main__":
 	today = datetime.datetime.now()
 	# today.strftime("%Y-%m-%d")
 
-	rows = generate_frontpage.delay('2014-01-17')
+	rows = generate_frontpage.delay('2014-01-07')
 	flist = rows.get()
 
 	for i, item in enumerate(flist):
