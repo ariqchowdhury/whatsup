@@ -20,6 +20,8 @@ class FrontpageTest(BaseWhatsupTester):
 		featured_list = self.browser.find_element_by_id("featured_list")
 		list_elements = featured_list.find_elements_by_class_name("link_for_channel")
 
+		self.assertIsNot(len(list_elements), 0)
+
 		for i, ele in enumerate(list_elements):
 			title_element = list_elements[i].find_element_by_class_name("channel_title")
 			self.assertEqual("Channel %s" % (i+1), title_element.text)
@@ -29,6 +31,8 @@ class FrontpageTest(BaseWhatsupTester):
 
 		all_list = self.browser.find_element_by_id("all_list")
 		list_elements = all_list.find_elements_by_class_name("link_for_channel")
+
+		self.assertIsNot(len(list_elements), 0)
 
 		for i, ele in enumerate(list_elements):
 			title_element = list_elements[i].find_element_by_class_name("channel_title")
