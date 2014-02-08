@@ -88,6 +88,22 @@ function SendInitMessage(websocket, id) {
 
 }
 
+var SendModule = (function () {
+
+	function send_comment() {
+
+	}
+
+	function send_init() {
+
+	}
+
+	function send_score_update() {
+
+	}
+
+})();
+
 var AppendMessageModule = (function () {
 	var json_data;
 	var is_short_msg;
