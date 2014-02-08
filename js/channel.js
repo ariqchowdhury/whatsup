@@ -15,31 +15,7 @@ $(document).ready(function(evt) {
 	var id = $("#ch_id").text();
 	var user = $("#user").text();
 	
-	ws = new WebSocket("ws://" + host + ":" + port + uri);
-
-
-	ws.onopen = function(evt) {
-		SendInitMessage(ws, id);
-	}
-
-	ws.onmessage = function(evt) {
-		console.log(new Date().getTime());
-		data = JSON.parse(evt.data);
-
-		if (data.hasOwnProperty('num_users')) {
-			UpdateUserCount(data);
-		}
-		else {
-			AppendMessage(data);	
-		}
-		
-		console.log(new Date().getTime());
-
-	};
-
-	ws.onclose = function(evt) {
-		
-	}
+	ws = SetupWebsocket("ws://" + host + ":" + port + uri, id);
 
 	$("#send").click(function() {
 		SendMessage(ws, id, user);
@@ -55,57 +31,35 @@ $(document).ready(function(evt) {
 
 })
 
-function AppendMessage(data) {
-	var destination_div;
-	var is_short_msg = (data.msg.length < 18);
+function SetupWebsocket(server, id) {
+	var ws = new WebSocket(server);
 
-
-	var html_message_root_class;
-
-	if (is_short_msg) {
-		html_message_root_class = "<div class='message_post short_message_post' id='message_post_wrapper_";
-	}
-	else {
-		html_message_root_class = "<div class='message_post long_message_post' id='message_post_wrapper_";
+	ws.onopen = function(evt) {
+		SendInitMessage(ws, id);
 	}
 
-	var html_message =  html_message_root_class + whatsup.post_num + "'>" + 
-						"<div class ='h6 glow' id='message_post_user'>" +
-						data.user + " : " + data.ts + " " + whatsup.post_num +
-						"</div>" +
-						"<div class='glow' id='message_post_msg'>" +
-						data.msg +
-						"</div>" + 
-						"</div>" +
-						"</div>";
+	ws.onmessage = function(evt) {
+		console.log(new Date().getTime());
+		data = JSON.parse(evt.data);
 
-	var new_div = document.createElement('div');
-	
-	
-	if (is_short_msg) {
-		destination_div = "short_messages_grid";
-		new_div.style.marginLeft= (Math.floor(Math.random()* 18)).toString() + "%";
-		html_message = "<li>" + html_message + "</li>";
-	}
-	else
-		destination_div = "long_messages";
+		if (data.hasOwnProperty('num_users')) {
+			UpdateUserCount(data);
+		}
+		else {
+			AppendMessageModule.constructor(data);
+			AppendMessageModule.append_to_dom();
 
-	new_div.innerHTML = html_message;
-	var msg_div = get_element(destination_div);
-	// Prepend new message to message box
-	msg_div.appendChild(new_div);
-	// Scroll to the top to newest message when the message box overflows
-	msg_div.scrollTop = 0;
-
-	$(".message_post").click(function() {
-		var element = event.target.id
+		}
 		
-		if (String(element).indexOf("wrapper") != -1) {
-			get_element(element).parentNode.removeChild(get_element(element));
-		}		
-	})
+		console.log(new Date().getTime());
 
-	whatsup.post_num++;
+	};
+
+	ws.onclose = function(evt) {
+		
+	}
+
+	return ws;
 }
 
 // This function sends the text from the 'comment' textarea across the websocket
@@ -133,6 +87,110 @@ function SendInitMessage(websocket, id) {
 	websocket.send(JSON.stringify(msg));
 
 }
+
+var SendModule = (function () {
+
+	function send_comment() {
+
+	}
+
+	function send_init() {
+
+	}
+
+	function send_score_update() {
+
+	}
+
+})();
+
+var AppendMessageModule = (function () {
+	var json_data;
+	var is_short_msg;
+	var html_message;
+	var id_name_post_wrapper;
+	var id_name_post_user;
+
+	function constructor(data) {
+		json_data = data;
+		is_short_msg = (data.msg.length < 18);
+	}
+
+	function create_html_of_message() {
+		var html_message_root_class;
+		post_num_uniq = whatsup.post_num++;
+
+		id_name_post_wrapper = "'message_post_wrapper_" + post_num_uniq + "'"; 
+		id_name_post_user = "'message_post_user_" + post_num_uniq + "'";
+
+		if (is_short_msg) {
+			html_message_root_class = "<div class='message_post short_message_post' id=" + id_name_post_wrapper;
+		}
+		else {
+			html_message_root_class = "<div class='message_post long_message_post' id=" + id_name_post_wrapper;
+		}
+
+		html_message =  html_message_root_class + ">" + 
+						"<div class ='h6 glow message_post_user' id=" + id_name_post_user + ">" +
+						data.user + " : " + data.ts + " " + post_num_uniq +
+						"</div>" +
+						"<div class='glow message_post_msg' id='message_post_msg_" + post_num_uniq + "'>" +
+						data.msg +
+						"</div>" + 
+						"</div>" +
+						"</div>";
+	}
+
+	function create_dom_element() {
+		var new_div = document.createElement('div');
+	
+		if (is_short_msg) {
+			destination_div = "short_messages_grid";
+			new_div.style.marginLeft= (Math.floor(Math.random()* 18)).toString() + "%";
+			html_message = "<li>" + html_message + "</li>";
+		}
+		else
+			destination_div = "long_messages";
+
+		new_div.innerHTML = html_message;
+		var msg_div = get_element(destination_div);
+		// Prepend new message to message box
+		msg_div.appendChild(new_div);
+		// Scroll to the top to newest message when the message box overflows
+		msg_div.scrollTop = 0;
+	}
+
+	function add_handlers() {
+		//id_name_* has quotes in it from making html, so strip those before using for jquery
+
+		$("#" + id_name_post_wrapper.replace(/'/g, "")).click(function() {
+			var element = event.target.id;
+			
+			// Check that the element name has 'wrapper' in it, so we know we clicked that and not
+			// the text or user name divs of the element
+			// This is needed because a click on a child element seems to go through to the parent as well
+			if (String(element).indexOf("wrapper") != -1) {
+				this.parentNode.removeChild(this);
+			}		
+		})
+
+		$('#' + id_name_post_user.replace(/'/g, "")).on("click", function() {
+			alert('sdofij');
+		})		
+	}
+
+	function append_to_dom() {
+		create_html_of_message();
+		create_dom_element();
+		add_handlers();
+	}
+
+	return {
+		constructor: constructor,
+		append_to_dom: append_to_dom
+	}
+
+})();
 
 function UpdateUserCount(data) {
 	document.getElementById('time').innerHTML = "Number of Users: " + data.num_users;
