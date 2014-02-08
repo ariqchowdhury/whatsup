@@ -18,13 +18,72 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
+import java.net.URISyntaxException;
+import java.security.NoSuchAlgorithmException;
+import java.security.KeyManagementException;
+import java.util.UUID;
+
+import com.rabbitmq.client.AMQP;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
+import com.rabbitmq.client.Channel;
 
 import static org.webbitserver.WebServers.createWebServer;
 
-public class WS extends BaseWebSocketHandler {
+public class WhatsupSocket extends BaseWebSocketHandler {
 	
 	private Map<String, List<WebSocketConnection>> channel_collection = Collections.synchronizedMap(new HashMap<String, List<WebSocketConnection>>());
 	
+	private ConnectionFactory factory;
+	private Connection conn;
+	private Channel channel;
+
+	private String exchangeName = "celery";
+	private String queueName = "celery";
+	private String routingKey = "celery";
+
+	WhatsupSocket() throws IOException {
+		super();
+		factory = new ConnectionFactory();
+		
+		try {
+			factory.setUri("amqp://guest@localhost:5672");
+		}
+		catch (URISyntaxException e) {
+			// TODO: log error message
+			e.printStackTrace();
+			return;
+		}
+		catch (NoSuchAlgorithmException e) {
+			// TODO: log error message
+			e.printStackTrace();
+			return;
+		}
+		catch (KeyManagementException e) {
+			// TODO: log error message
+			e.printStackTrace();
+			return;
+		}
+
+		
+		conn = factory.newConnection();
+		channel = conn.createChannel();
+	
+
+		channel.exchangeDeclare(exchangeName, "direct", true);
+		channel.queueDeclare(queueName, true, false, false, null);
+		channel.queueBind(queueName, exchangeName, routingKey);
+
+		String uuid = UUID.randomUUID().toString();
+		String message_body = "{\"id\": \"" + uuid + "\",\"task\": \"whatsup.task_queue.test\"}";
+
+		channel.basicPublish(exchangeName, routingKey, 
+							 new AMQP.BasicProperties.Builder()
+							 	.contentType("application/json").userId("guest").build(),
+							 	 message_body.getBytes("ASCII"));
+
+	}
+
 	public void onOpen(WebSocketConnection connection) {
 		//System.out.println("New connection");
 		
@@ -166,7 +225,7 @@ public class WS extends BaseWebSocketHandler {
 			FutureTask<Void> ft1 = new FutureTask<Void>(new Callable<Void>() {
 				@Override
 				public Void call() {
-					return WS.BroadcastMsg(sublist_1, msg);
+					return WhatsupSocket.BroadcastMsg(sublist_1, msg);
 				}
 			});
 			
@@ -176,7 +235,7 @@ public class WS extends BaseWebSocketHandler {
 			FutureTask<Void> ft2 = new FutureTask<Void>(new Callable<Void>() {
 				@Override
 				public Void call() {
-					return WS.BroadcastMsg(sublist_2, msg);
+					return WhatsupSocket.BroadcastMsg(sublist_2, msg);
 				}
 			});
 			
@@ -199,8 +258,15 @@ public class WS extends BaseWebSocketHandler {
 	}
 	
 	public static void main(String[] args) {
-		WebServer webServer = createWebServer(9000)
-             .add("/ws", new WS());
+		WebServer webServer = null;
+		try {
+			webServer = createWebServer(9000)
+	             .add("/ws", new WhatsupSocket());
+        }
+        catch (IOException e) {
+        	System.out.println("Problem with Celery connection");
+        	System.exit(0);
+        }
 	
 		webServer.start();
 		System.out.println("Server running at " + webServer.getUri());
