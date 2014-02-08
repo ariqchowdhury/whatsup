@@ -1,5 +1,5 @@
-
 import org.json.simple.JSONObject;
+import org.json.simple.JSONArray;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.webbitserver.WebServer;
@@ -8,6 +8,7 @@ import org.webbitserver.WebSocketConnection;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -42,6 +43,9 @@ public class WhatsupSocket extends BaseWebSocketHandler {
 	private String queueName = "celery";
 	private String routingKey = "celery";
 
+	private String task_queue_test = "whatsup.task_queue.test";
+	private String task_queue_write_comment_to_db = "whatsup.task_queue.write_to_db";
+
 	WhatsupSocket() throws IOException {
 		super();
 		factory = new ConnectionFactory();
@@ -69,18 +73,9 @@ public class WhatsupSocket extends BaseWebSocketHandler {
 		conn = factory.newConnection();
 		channel = conn.createChannel();
 	
-
 		channel.exchangeDeclare(exchangeName, "direct", true);
 		channel.queueDeclare(queueName, true, false, false, null);
 		channel.queueBind(queueName, exchangeName, routingKey);
-
-		String uuid = UUID.randomUUID().toString();
-		String message_body = "{\"id\": \"" + uuid + "\",\"task\": \"whatsup.task_queue.test\"}";
-
-		channel.basicPublish(exchangeName, routingKey, 
-							 new AMQP.BasicProperties.Builder()
-							 	.contentType("application/json").userId("guest").build(),
-							 	 message_body.getBytes("ASCII"));
 
 	}
 
@@ -163,41 +158,42 @@ public class WhatsupSocket extends BaseWebSocketHandler {
 			// sanitized msg should escape out string quotes
 			String sanitized_msg = "\'" + msg + "\'";
 			
-			//WriteCommentToDatabase(user, sanitized_msg, src);
+			WriteCommentToDatabase(user, sanitized_msg, src);
 
 		}	
 		
 	}
 	
+	@SuppressWarnings("unchecked")
 	public void WriteCommentToDatabase(String user, String sanitized_msg, String src) {
-		ProcessBuilder p = new ProcessBuilder(new String[] {"python", "src/j_write_db.py", user, sanitized_msg, src});
-		final Process process;
+		String uuid = UUID.randomUUID().toString();
+		String comment_id = UUID.randomUUID().toString();
+
+		JSONArray arg_list = new JSONArray();
+		arg_list.add(user);
+		arg_list.add(sanitized_msg);
+		arg_list.add(src);
+		arg_list.add(comment_id);
+
+		JSONObject celery_msg = new JSONObject();
+		celery_msg.put("id", uuid);
+		celery_msg.put("task", task_queue_write_comment_to_db);
+		celery_msg.put("args", arg_list);
+
+		String message_body = celery_msg.toJSONString();
+
 		try {
-			process = p.start();
-		} catch (IOException e1) {
-			// Something wrong with the director structure or file missing
+			channel.basicPublish(exchangeName, routingKey, 
+								 new AMQP.BasicProperties.Builder()
+								 	.contentType("application/json").userId("guest").build(),
+								 	 message_body.getBytes("ASCII"));
+		}
+		catch (IOException e) {
+			// Something wrong with connection to rabbitmq server
 			// TODO: log error message
-			e1.printStackTrace();
+			e.printStackTrace();
 			return;
 		}
-					
-		new Thread(new Runnable() {
-			public void run() {
-				try {
-					BufferedReader stdInput = new BufferedReader(new InputStreamReader(process.getInputStream()));
-					BufferedReader stdError = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-					String s = null;
-					while ((s = stdInput.readLine()) != null) {
-						System.out.println(s);
-					}
-					while ((s = stdError.readLine()) != null) {
-						System.out.println(s);
-					}
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		}).start();
 	}
 	
 	public Void ParaBroadcastMsg(final String msg, String src) {

@@ -110,6 +110,3 @@ def get_channel_title_from_id(ch_id):
 	rows = get_channel_title_from_id.db.execute("SELECT title from channels_by_id WHERE id=%s" % ch_id)
 	return sanitize_cass_rows(rows)
 
-@app.task
-def test():
-	return 4
