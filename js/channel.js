@@ -39,8 +39,8 @@ function SetupWebsocket(server, id) {
 	}
 
 	ws.onmessage = function(evt) {
-		console.log(new Date().getTime());
 		data = JSON.parse(evt.data);
+		console.log(data);
 
 		if (data.hasOwnProperty('num_users')) {
 			UpdateUserCount(data);
@@ -50,9 +50,6 @@ function SetupWebsocket(server, id) {
 			AppendMessageModule.append_to_dom();
 
 		}
-		
-		console.log(new Date().getTime());
-
 	};
 
 	ws.onclose = function(evt) {
@@ -88,6 +85,10 @@ function SendInitMessage(websocket, id) {
 
 }
 
+function SendScoreMessage(websocket, id, user) {
+
+}
+
 var AppendMessageModule = (function () {
 	var json_data;
 	var is_short_msg;
@@ -104,6 +105,8 @@ var AppendMessageModule = (function () {
 		var html_message_root_class;
 		post_num_uniq = whatsup.post_num++;
 
+		console.log(json_data.comment_id);
+
 		id_name_post_wrapper = "'message_post_wrapper_" + post_num_uniq + "'"; 
 		id_name_post_user = "'message_post_user_" + post_num_uniq + "'";
 
@@ -116,12 +119,9 @@ var AppendMessageModule = (function () {
 
 		html_message =  html_message_root_class + ">" + 
 						"<div class ='h6 glow message_post_user' id=" + id_name_post_user + ">" +
-						data.user + " : " + data.ts + " " + post_num_uniq +
-						"</div>" +
+						json_data.user + ":" + json_data.ts + " " + "<span class='message_score'>" + 0 + "</span>" + "</div>" +
 						"<div class='glow message_post_msg' id='message_post_msg_" + post_num_uniq + "'>" +
-						data.msg +
-						"</div>" + 
-						"</div>" +
+						json_data.msg + "</div>" + 
 						"</div>";
 	}
 

@@ -143,11 +143,13 @@ public class WhatsupSocket extends BaseWebSocketHandler {
 			String src = (String) jsonObject.get("src");
 			String msg = (String) jsonObject.get("msg");
 			String user = (String) jsonObject.get("user");
+			String comment_id = UUID.randomUUID().toString();
 							
 			JSONObject outgoing_message = new JSONObject();
 			outgoing_message.put("msg", msg);
 			outgoing_message.put("user", user);
 			outgoing_message.put("ts", "12:34");
+			outgoing_message.put("comment_id", comment_id);
 				
 			final String json_outgoing_message = outgoing_message.toJSONString();
 			
@@ -155,19 +157,15 @@ public class WhatsupSocket extends BaseWebSocketHandler {
 				
 			ParaBroadcastMsg(json_outgoing_message, src);
 			
-			// sanitized msg should escape out string quotes
-			String sanitized_msg = "\'" + msg + "\'";
-			
-			WriteCommentToDatabase(user, sanitized_msg, src);
+			// WriteCommentToDatabase(user, sanitized_msg, src, comment_id);
 
 		}	
 		
 	}
 	
 	@SuppressWarnings("unchecked")
-	public void WriteCommentToDatabase(String user, String sanitized_msg, String src) {
+	public void WriteCommentToDatabase(String user, String sanitized_msg, String src, String comment_id) {
 		String uuid = UUID.randomUUID().toString();
-		String comment_id = UUID.randomUUID().toString();
 
 		JSONArray arg_list = new JSONArray();
 		arg_list.add(user);
