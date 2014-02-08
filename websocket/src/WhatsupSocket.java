@@ -160,6 +160,14 @@ public class WhatsupSocket extends BaseWebSocketHandler {
 			// WriteCommentToDatabase(user, sanitized_msg, src, comment_id);
 
 		}	
+		else if (type.equals("score")) {
+			String src = (String) jsonObject.get("src");
+			String target = (String) jsonObject.get("target");
+			String user = (String) jsonObject.get("user");
+			Long score_change = (Long) jsonObject.get("score_change"); 
+
+			System.out.println(src + ":" + target + ":" + user + ":" + score_change);
+		}
 		
 	}
 	

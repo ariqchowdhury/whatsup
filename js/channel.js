@@ -1,5 +1,5 @@
 window.whatsup = {}
-whatsup.post_num = 0;
+whatsup.id = $("#ch_id").text();
 
 function get_element (el) {
 	if (typeof el == 'string') return document.getElementById(el);
@@ -40,13 +40,12 @@ function SetupWebsocket(server, id) {
 
 	ws.onmessage = function(evt) {
 		data = JSON.parse(evt.data);
-		console.log(data);
 
 		if (data.hasOwnProperty('num_users')) {
 			UpdateUserCount(data);
 		}
 		else {
-			AppendMessageModule.constructor(data);
+			AppendMessageModule.constructor(data, ws);
 			AppendMessageModule.append_to_dom();
 
 		}
@@ -85,8 +84,16 @@ function SendInitMessage(websocket, id) {
 
 }
 
-function SendScoreMessage(websocket, id, user) {
+function SendScoreMessage(websocket, id, user, comment_id, score_change) {
+	var msg = {
+		type: 'score',
+		src: id,
+		user: user,
+		target: comment_id,
+		score_change: score_change
+	}
 
+	websocket.send(JSON.stringify(msg));
 }
 
 var AppendMessageModule = (function () {
@@ -95,20 +102,20 @@ var AppendMessageModule = (function () {
 	var html_message;
 	var id_name_post_wrapper;
 	var id_name_post_user;
+	var ws;
 
-	function constructor(data) {
+	function constructor(data, websocket) {
 		json_data = data;
 		is_short_msg = (data.msg.length < 18);
+		ws = websocket;
 	}
 
 	function create_html_of_message() {
 		var html_message_root_class;
-		post_num_uniq = whatsup.post_num++;
+		post_num_uniq = json_data.comment_id;
 
-		console.log(json_data.comment_id);
-
-		id_name_post_wrapper = "'message_post_wrapper_" + post_num_uniq + "'"; 
-		id_name_post_user = "'message_post_user_" + post_num_uniq + "'";
+		id_name_post_wrapper = "'" + post_num_uniq + "'"; 
+		id_name_post_user = "'mpu_" + post_num_uniq + "'";
 
 		if (is_short_msg) {
 			html_message_root_class = "<div class='message_post short_message_post' id=" + id_name_post_wrapper;
@@ -120,7 +127,7 @@ var AppendMessageModule = (function () {
 		html_message =  html_message_root_class + ">" + 
 						"<div class ='h6 glow message_post_user' id=" + id_name_post_user + ">" +
 						json_data.user + ":" + json_data.ts + " " + "<span class='message_score'>" + 0 + "</span>" + "</div>" +
-						"<div class='glow message_post_msg' id='message_post_msg_" + post_num_uniq + "'>" +
+						"<div class='glow message_post_msg' id='mpm_" + post_num_uniq + "'>" +
 						json_data.msg + "</div>" + 
 						"</div>";
 	}
@@ -138,7 +145,6 @@ var AppendMessageModule = (function () {
 
 		new_div.innerHTML = html_message;
 		var msg_div = get_element(destination_div);
-		// Prepend new message to message box
 		msg_div.appendChild(new_div);
 		// Scroll to the top to newest message when the message box overflows
 		msg_div.scrollTop = 0;
@@ -159,7 +165,8 @@ var AppendMessageModule = (function () {
 		})
 
 		$('#' + id_name_post_user.replace(/'/g, "")).on("click", function() {
-			alert('sdofij');
+			console.log(String(this.parentNode.id));
+			SendScoreMessage(ws, whatsup.id, json_data.user, String(this.parentNode.id), 1);
 		})		
 	}
 
