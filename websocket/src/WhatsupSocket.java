@@ -162,11 +162,18 @@ public class WhatsupSocket extends BaseWebSocketHandler {
 		}	
 		else if (type.equals("score")) {
 			String src = (String) jsonObject.get("src");
-			String target = (String) jsonObject.get("target");
+			String comment_id = (String) jsonObject.get("comment_id");
 			String user = (String) jsonObject.get("user");
-			Long score_change = (Long) jsonObject.get("score_change"); 
+			Long score_change = (Long) jsonObject.get("score_change");
 
-			System.out.println(src + ":" + target + ":" + user + ":" + score_change);
+			JSONObject score_update = new JSONObject();
+			score_update.put("score", score_change);
+			score_update.put("comment_id", comment_id);
+
+			final String json_score_update = score_update.toJSONString();
+			final WebSocketConnection conn = connection;
+
+			ParaBroadcastMsg(json_score_update, src);
 		}
 		
 	}

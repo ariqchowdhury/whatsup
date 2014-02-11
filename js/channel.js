@@ -44,6 +44,9 @@ function SetupWebsocket(server, id) {
 		if (data.hasOwnProperty('num_users')) {
 			UpdateUserCount(data);
 		}
+		else if (data.hasOwnProperty('score')) {
+			console.log("GOT SCORE UPDATE")
+		}
 		else {
 			AppendMessageModule.constructor(data, ws);
 			AppendMessageModule.append_to_dom();
@@ -89,7 +92,7 @@ function SendScoreMessage(websocket, id, user, comment_id, score_change) {
 		type: 'score',
 		src: id,
 		user: user,
-		target: comment_id,
+		comment_id: comment_id,
 		score_change: score_change
 	}
 
