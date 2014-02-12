@@ -1,5 +1,10 @@
 window.whatsup = {}
+window.setInterval(UpdateCommentVisibility, 5000);
 whatsup.id = $("#ch_id").text();
+whatsup.lambda_kappas = {};
+whatsup.sigma_kappas = {};
+whatsup.tau_lambda_kappas = {};
+whatsup.tau_sigma_kappas = {};
 
 function get_element (el) {
 	if (typeof el == 'string') return document.getElementById(el);
@@ -122,9 +127,11 @@ var AppendMessageModule = (function () {
 
 		if (is_short_msg) {
 			html_message_root_class = "<div class='message_post short_message_post' id=" + id_name_post_wrapper;
+			whatsup.sigma_kappas[post_num_uniq] = 0;
 		}
 		else {
 			html_message_root_class = "<div class='message_post long_message_post' id=" + id_name_post_wrapper;
+			whatsup.lambda_kappas[post_num_uniq] = 0;
 		}
 
 		html_message =  html_message_root_class + ">" + 
@@ -156,9 +163,9 @@ var AppendMessageModule = (function () {
 	function add_handlers() {
 		//id_name_* has quotes in it from making html, so strip those before using for jquery
 
-		$("#" + id_name_post_wrapper.replace(/'/g, "")).click(function() {
+		$("#" + id_name_post_wrapper.replace(/'/g, "")).on("click", function() {
 			var element = event.target.id;
-			
+
 			// Check that the element name has 'wrapper' in it, so we know we clicked that and not
 			// the text or user name divs of the element
 			// This is needed because a click on a child element seems to go through to the parent as well
@@ -168,7 +175,6 @@ var AppendMessageModule = (function () {
 		})
 
 		$('#' + id_name_post_user.replace(/'/g, "")).on("click", function() {
-			console.log(String(this.parentNode.id));
 			SendScoreMessage(ws, whatsup.id, json_data.user, String(this.parentNode.id), 1);
 		})		
 	}
@@ -196,9 +202,17 @@ function UpdateCommentScore(data) {
 	var current_score = parseInt(score[0].innerText);
 	current_score += 1;
 	score[0].innerText = current_score;
-	console.log(current_score);
+
+	if (data.comment_id in whatsup.lambda_kappas) {
+		whatsup.lambda_kappas[data.comment_id]++;
+	}
+	else if (data.comment_id in whatsup.sigma_kappas) {
+		whatsup.sigma_kappas[data.comment_id]++;
+	}
+
 }
 
-function UpdateCommentVisibility(comment_id) {
+function UpdateCommentVisibility() {
+	console.log("update comments");
 	
 }
