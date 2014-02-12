@@ -45,7 +45,7 @@ function SetupWebsocket(server, id) {
 			UpdateUserCount(data);
 		}
 		else if (data.hasOwnProperty('score')) {
-			console.log("GOT SCORE UPDATE")
+			UpdateCommentScore(data);
 		}
 		else {
 			AppendMessageModule.constructor(data, ws);
@@ -188,4 +188,13 @@ var AppendMessageModule = (function () {
 
 function UpdateUserCount(data) {
 	document.getElementById('time').innerHTML = "Number of Users: " + data.num_users;
+}
+
+function UpdateCommentScore(data) {
+	score = document.getElementById(data.comment_id).getElementsByClassName('message_score');
+	// There will only be one element of class message_score, so it will be the first 
+	var current_score = parseInt(score[0].innerText);
+	current_score += 1;
+	score[0].innerText = current_score;
+	console.log(current_score);
 }
