@@ -198,3 +198,7 @@ function UpdateCommentScore(data) {
 	score[0].innerText = current_score;
 	console.log(current_score);
 }
+
+function UpdateCommentVisibility(comment_id) {
+	
+}
