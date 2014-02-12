@@ -1,11 +1,10 @@
 import uuid
-import json
 
 import tornado.web
 import tornado.websocket
 from tornado import gen
 
-from whatsup.task_queue import write_to_db, get_channel_title_from_id, DecodeGetChannelTitleFromId, create_channel
+from whatsup.task_queue import get_channel_title_from_id, DecodeGetChannelTitleFromId, create_channel
 import whatsup.core
 
 PATH_TO_SITE = "../"
