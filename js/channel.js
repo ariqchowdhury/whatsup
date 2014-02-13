@@ -125,6 +125,9 @@ var AppendMessageModule = (function () {
 		id_name_post_wrapper = "'" + post_num_uniq + "'"; 
 		id_name_post_user = "'mpu_" + post_num_uniq + "'";
 
+		var d = new Date(0);
+		d.setUTCSeconds(json_data.ts);
+
 		if (is_short_msg) {
 			html_message_root_class = "<div class='message_post short_message_post' id=" + id_name_post_wrapper;
 			whatsup.sigma_kappas[post_num_uniq] = 0;
@@ -136,7 +139,7 @@ var AppendMessageModule = (function () {
 
 		html_message =  html_message_root_class + ">" + 
 						"<div class ='h6 glow message_post_user' id=" + id_name_post_user + ">" +
-						json_data.user + ":" + json_data.ts + " " + "<span class='message_score'>" + 0 + "</span>" + "</div>" +
+						json_data.user + " " + d.getUTCHours()+":"+d.getUTCMinutes() + " " + "<span class='message_score'>" + 0 + "</span>" + "</div>" +
 						"<div class='glow message_post_msg' id='mpm_" + post_num_uniq + "'>" +
 						json_data.msg + "</div>" + 
 						"</div>";
