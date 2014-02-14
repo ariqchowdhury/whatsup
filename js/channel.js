@@ -1,15 +1,13 @@
 window.whatsup = {}
-//window.setInterval(UpdateCommentVisibility, 1000);
 whatsup.id = $("#ch_id").text();
 
 whatsup.lambda_kappas = {};
 whatsup.sigma_kappas = {};
 whatsup.tau_lambda_kappas = {};
 whatsup.tau_sigma_kappas = {};
-whatsup.lambda_list = [];
-whatsup.sigma_list = [];
 
 var ttl;
+whatsup.lambda_kappas_ttl = {};
 
 function get_element (el) {
 	if (typeof el == 'string') return document.getElementById(el);
@@ -137,19 +135,20 @@ var AppendMessageModule = (function () {
 			html_message_root_class = "<div class='message_post short_message_post' id=" + id_name_post_wrapper;
 			whatsup.sigma_kappas[post_num_uniq] = 0;
 			whatsup.tau_sigma_kappas[post_num_uniq] = json_data.ts;
-			whatsup.sigma_list.push(post_num_uniq);
 			ttl = window.setTimeout(killme, 15000, post_num_uniq); 
 		}
 		else {
 			html_message_root_class = "<div class='message_post long_message_post' id=" + id_name_post_wrapper;
 			whatsup.lambda_kappas[post_num_uniq] = 0;
 			whatsup.tau_lambda_kappas[post_num_uniq] = json_data.ts;
-			whatsup.lambda_list.push(post_num_uniq);
+			whatsup.lambda_kappas_ttl[post_num_uniq] = window.setTimeout(killme, 20000, post_num_uniq);
 		}
+
+		var m = ( d.getUTCMinutes() < 10 ? "0" : "") + d.getUTCMinutes();
 
 		html_message =  html_message_root_class + ">" + 
 						"<div class ='h6 glow message_post_user' id=" + id_name_post_user + ">" +
-						json_data.user + " " + d.getUTCHours()+":"+d.getUTCMinutes() + " " + "<span class='message_score'>" + 0 + "</span>" + "</div>" +
+						json_data.user + " " + d.getUTCHours()+":"+ m + " " + "<span class='message_score'>" + 0 + "</span>" + "</div>" +
 						"<div class='glow message_post_msg' id='mpm_" + post_num_uniq + "'>" +
 						json_data.msg + "</div>" + 
 						"</div>";
@@ -223,17 +222,17 @@ function UpdateCommentScore(data) {
 		whatsup.sigma_kappas[data.comment_id]++;
 	}
 
-}
-
-function UpdateCommentVisibility() {
+	if (data.comment_id in whatsup.lambda_kappas_ttl) {
+		window.clearTimeout(whatsup.lambda_kappas_ttl[data.comment_id]);
+		whatsup.lambda_kappas_ttl[data.comment_id] = window.setTimeout(killme, 8000, post_num_uniq);
+	}
 
 }
 
 function killme(element) {
-	console.log("got here");
-	console.log(element);
 	var $comment_div = $("#" + element.replace(/'/g, ""));
-	$comment_div.fadeOut(500, function() {
-		$comment_div.remove();
+
+	$comment_div.fadeOut(500, function() {		
+		$comment_div.remove();	
 	})
 }
