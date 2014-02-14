@@ -1,10 +1,13 @@
 window.whatsup = {}
-window.setInterval(UpdateCommentVisibility, 5000);
+window.setInterval(UpdateCommentVisibility, 1000);
 whatsup.id = $("#ch_id").text();
+
 whatsup.lambda_kappas = {};
 whatsup.sigma_kappas = {};
 whatsup.tau_lambda_kappas = {};
 whatsup.tau_sigma_kappas = {};
+whatsup.lambda_list = [];
+whatsup.sigma_list = [];
 
 function get_element (el) {
 	if (typeof el == 'string') return document.getElementById(el);
@@ -126,15 +129,19 @@ var AppendMessageModule = (function () {
 		id_name_post_user = "'mpu_" + post_num_uniq + "'";
 
 		var d = new Date(0);
-		d.setUTCSeconds(json_data.ts);
+		d.setUTCMilliseconds(json_data.ts);
 
 		if (is_short_msg) {
 			html_message_root_class = "<div class='message_post short_message_post' id=" + id_name_post_wrapper;
 			whatsup.sigma_kappas[post_num_uniq] = 0;
+			whatsup.tau_sigma_kappas[post_num_uniq] = json_data.ts;
+			whatsup.sigma_list.push(post_num_uniq);
 		}
 		else {
 			html_message_root_class = "<div class='message_post long_message_post' id=" + id_name_post_wrapper;
 			whatsup.lambda_kappas[post_num_uniq] = 0;
+			whatsup.tau_lambda_kappas[post_num_uniq] = json_data.ts;
+			whatsup.lambda_list.push(post_num_uniq);
 		}
 
 		html_message =  html_message_root_class + ">" + 
@@ -216,6 +223,17 @@ function UpdateCommentScore(data) {
 }
 
 function UpdateCommentVisibility() {
-	console.log("update comments");
+	var cur_time = (new Date).getTime();
 	
+	for (var i = 0; i < whatsup.sigma_list.length; i++) {
+		if (cur_time - whatsup.tau_sigma_kappas[whatsup.sigma_list[i]] > 16000) {
+			var $comment_div = $("#" + whatsup.sigma_list[i].replace(/'/g, ""));
+
+			$comment_div.fadeOut(500, function() {
+				$comment_div.remove();
+			})
+		
+			whatsup.sigma_list.splice(i, 1);
+		}
+	}
 }

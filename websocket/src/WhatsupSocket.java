@@ -144,12 +144,12 @@ public class WhatsupSocket extends BaseWebSocketHandler {
 			String msg = (String) jsonObject.get("msg");
 			String user = (String) jsonObject.get("user");
 			String comment_id = UUID.randomUUID().toString();
-			long seconds = System.currentTimeMillis() / 1000l;
+			long ms = System.currentTimeMillis();
 							
 			JSONObject outgoing_message = new JSONObject();
 			outgoing_message.put("msg", msg);
 			outgoing_message.put("user", user);
-			outgoing_message.put("ts", seconds);
+			outgoing_message.put("ts", ms);
 			outgoing_message.put("comment_id", comment_id);
 				
 			final String json_outgoing_message = outgoing_message.toJSONString();
