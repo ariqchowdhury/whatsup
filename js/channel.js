@@ -1,5 +1,5 @@
 window.whatsup = {}
-window.setInterval(UpdateCommentVisibility, 1000);
+//window.setInterval(UpdateCommentVisibility, 1000);
 whatsup.id = $("#ch_id").text();
 
 whatsup.lambda_kappas = {};
@@ -8,6 +8,8 @@ whatsup.tau_lambda_kappas = {};
 whatsup.tau_sigma_kappas = {};
 whatsup.lambda_list = [];
 whatsup.sigma_list = [];
+
+var ttl;
 
 function get_element (el) {
 	if (typeof el == 'string') return document.getElementById(el);
@@ -136,6 +138,7 @@ var AppendMessageModule = (function () {
 			whatsup.sigma_kappas[post_num_uniq] = 0;
 			whatsup.tau_sigma_kappas[post_num_uniq] = json_data.ts;
 			whatsup.sigma_list.push(post_num_uniq);
+			ttl = window.setTimeout(killme, 15000, post_num_uniq); 
 		}
 		else {
 			html_message_root_class = "<div class='message_post long_message_post' id=" + id_name_post_wrapper;
@@ -223,17 +226,14 @@ function UpdateCommentScore(data) {
 }
 
 function UpdateCommentVisibility() {
-	var cur_time = (new Date).getTime();
-	
-	for (var i = 0; i < whatsup.sigma_list.length; i++) {
-		if (cur_time - whatsup.tau_sigma_kappas[whatsup.sigma_list[i]] > 16000) {
-			var $comment_div = $("#" + whatsup.sigma_list[i].replace(/'/g, ""));
 
-			$comment_div.fadeOut(500, function() {
-				$comment_div.remove();
-			})
-		
-			whatsup.sigma_list.splice(i, 1);
-		}
-	}
+}
+
+function killme(element) {
+	console.log("got here");
+	console.log(element);
+	var $comment_div = $("#" + element.replace(/'/g, ""));
+	$comment_div.fadeOut(500, function() {
+		$comment_div.remove();
+	})
 }
