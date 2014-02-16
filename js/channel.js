@@ -14,6 +14,142 @@ var comment_type = {
 	REPLY: 1
 };
 
+Inheritance_Manager = {};
+Inheritance_Manager.extend = function (subClass, baseClass) {
+	function inheritance() { }
+	inheritance.prototype = baseClass.prototype;
+	subClass.prototype = new inheritance();
+	subClass.prototype.constructor = subClass;
+	subClass.baseConstructor = baseClass;
+	subClass.superClass = baseClass.prototype;
+}
+
+Comment = function (websocket, json_data) {
+	this.ws = websocket;
+	this.data = json_data;	
+}
+
+Comment.prototype = {
+	
+	set_uniq_id: function() {
+		this.post_num_uniq = this.data.comment_id;
+	},
+
+	generate_ids: function() {
+		this.id_name_post_wrapper = "'" + this.post_num_uniq + "'"; 
+		this.id_name_post_user = "'mpu" + this.post_num_uniq + "'";
+		this.id_name_post_msg = "'mpm" + this.post_num_uniq + "'";
+		this.id_reply_comment = "'rc" + this.post_num_uniq + "'";
+		this.id_reply_area = "'ra" + this.post_num_uniq + "'";
+		this.id_reply_btn = "'b" + this.post_num_uniq + "'";
+	},
+
+	generate_root_html: function() {
+		this.html_message_root_class = "";
+	},
+
+	generate_html: function() {
+		var d = new Date(0);
+		d.setUTCMilliseconds(this.data.ts);
+
+		var m = ( d.getUTCMinutes() < 10 ? "0" : "") + d.getUTCMinutes();
+
+		this.html_message =  this.html_message_root_class + ">" + 
+						"<div class ='h6 glow message_post_user' id=" + this.id_name_post_user + ">" +
+						this.data.user + " " + d.getUTCHours()+":"+ m + " " + "<span class='message_score'>" + 0 + "</span>" + "</div>" +
+						"<div class='glow message_post_msg' id=" + this.id_name_post_msg + ">" +
+						this.data.msg + "</div>" + "<div class='reply_area' id=" + this.id_reply_area + 
+						"><textarea class='reply_comment' id=" + this.id_reply_comment + " rows=3></textarea>" + 
+						"</br> <button class='btn btn-primary btn-xs' type='submit' id=" + this.id_reply_btn + ">Reply</button></div>" +
+						"</div>";
+	},
+
+	generate_dom_element: function() {
+		this.new_div = document.createElement('div');
+	},
+
+	add_dom_element: function() {
+		this.new_div.innerHTML = this.html_message;
+		var msg_div = get_element(this.destination_div);
+		msg_div.appendChild(this.new_div);
+		// Scroll to the top to newest message when the message box overflows
+		msg_div.scrollTop = 0;
+	},
+
+	add_handler: function() {
+		ws = this.ws;
+		data = this.data;
+		$("#" + this.id_name_post_wrapper.replace(/'/g, "")).on("click", function() {
+			var element = event.target.id;
+
+			// Check that the element name has 'wrapper' in it, so we know we clicked that and not
+			// the text or user name divs of the element
+			// This is needed because a click on a child element seems to go through to the parent as well
+			if (String(element).indexOf("wrapper") != -1) {
+				this.parentNode.removeChild(this);
+			}		
+		})
+
+		$('#' + this.id_name_post_user.replace(/'/g, "")).on("click", function() {
+			// CalculateScore();
+			SendScoreMessage(ws, whatsup.id, data.user, String(this.parentNode.id), 1);
+		})
+
+		$('#' + this.id_name_post_msg.replace(/'/g, "")).on("click", function() {
+			$('#ra' + String(this.parentNode.id)).slideToggle();		
+		})
+
+		$('#' + this.id_reply_btn.replace(/'/g, "")).on("click", function() {
+			ReplyToMessage(ws, whatsup.id, data.user, String(this.parentNode.parentNode.id));
+		})
+	}
+
+}
+
+ShortComment = function (websocket, json_data) {
+	ShortComment.baseConstructor.call(this, websocket, json_data);
+}
+
+Inheritance_Manager.extend(ShortComment, Comment);
+
+ShortComment.prototype.generate_root_html = function() {
+	this.html_message_root_class = "<div class='message_post short_message_post' id=" + this.id_name_post_wrapper;
+	whatsup.sigma_kappas[this.post_num_uniq] = 0;
+	whatsup.tau_sigma_kappas[this.post_num_uniq] = this.data.ts;
+	ttl = window.setTimeout(killme, 15000, this.post_num_uniq);
+};
+
+ShortComment.prototype.generate_dom_element = function() {
+	this.new_div = document.createElement('div');
+	this.destination_div = "short_messages_grid";
+	this.new_div.style.marginLeft= (Math.floor(Math.random()* 18)).toString() + "%";
+	this.html_message = "<li>" + this.html_message + "</li>";
+};
+
+LongComment = function (websocket, json_data) {
+	LongComment.baseConstructor.call(this, websocket, json_data);
+}
+Inheritance_Manager.extend(LongComment, Comment);
+LongComment.prototype.generate_root_html = function() {
+	this.html_message_root_class = "<div class='message_post long_message_post' id=" + this.id_name_post_wrapper;
+	whatsup.lambda_kappas[this.post_num_uniq] = 0;
+	whatsup.tau_lambda_kappas[this.post_num_uniq] = this.data.ts;
+	whatsup.lambda_kappas_ttl[this.post_num_uniq] = window.setTimeout(killme, 20000, this.post_num_uniq);
+};
+
+LongComment.prototype.generate_dom_element = function() {
+	this.new_div = document.createElement('div');
+	this.destination_div = "long_messages";
+}
+
+ReplyComment = function (websocket, json_data) {
+	ReplyComment.baseConstructor.call(this, websocket, json_data);	
+}
+Inheritance_Manager.extend(ReplyComment, LongComment);
+ReplyComment.prototype.set_uniq_id = function() {
+	this.post_num_uniq = this.data.reply_id;
+}
+
 function get_element (el) {
 	if (typeof el == 'string') return document.getElementById(el);
 	return el;
@@ -61,12 +197,17 @@ function SetupWebsocket(server, id) {
 			UpdateCommentScore(data);
 		}
 		else if (data.hasOwnProperty('reply_to')) {
-			AppendMessageModule.constructor(data, ws, comment_type.REPLY);
-			AppendMessageModule.append_to_dom();
+			cmnt = new ReplyComment(ws, data);
+			add_to_dom(cmnt);
 		}
 		else {
-			AppendMessageModule.constructor(data, ws, comment_type.COMMENT);
-			AppendMessageModule.append_to_dom();
+			if (data.msg.length < 18) {
+				cmnt = new ShortComment(ws, data);
+			}
+			else {
+				cmnt = new LongComment(ws, data);
+			}
+			add_to_dom(cmnt);
 		}
 	};
 
@@ -129,132 +270,16 @@ function ReplyToMessage(websocket, id, user, comment_id) {
 	websocket.send(JSON.stringify(msg));
 }
 
-var AppendMessageModule = (function () {
-	var json_data;
-	var is_short_msg;
-	var html_message;
-	var id_name_post_wrapper;
-	var id_name_post_user;
-	var id_name_post_msg;
-	var id_reply_comment;
-	var id_reply_area;
-	var id_reply_btn;
-	var mytype;
-	var ws;
 
-	function constructor(data, websocket, type) {
-		json_data = data;
-		is_short_msg = (data.msg.length < 18);
-		ws = websocket;
-		mytype = type;
-	}
-
-	function create_html_of_message() {
-		var html_message_root_class;
-		
-		if (mytype == comment_type.COMMENT) {
-			post_num_uniq = json_data.comment_id;
-		} 
-		else if (mytype == comment_type.REPLY) {
-			post_num_uniq = json_data.reply_id;
-		}
-		else {
-			console.log(mytype);	
-		}
-
-		id_name_post_wrapper = "'" + post_num_uniq + "'"; 
-		id_name_post_user = "'mpu" + post_num_uniq + "'";
-		id_name_post_msg = "'mpm" + post_num_uniq + "'";
-		id_reply_comment = "'rc" + post_num_uniq + "'";
-		id_reply_area = "'ra" + post_num_uniq + "'";
-		id_reply_btn = "'b" + post_num_uniq + "'";
-
-		var d = new Date(0);
-		d.setUTCMilliseconds(json_data.ts);
-
-		if (is_short_msg) {
-			html_message_root_class = "<div class='message_post short_message_post' id=" + id_name_post_wrapper;
-			whatsup.sigma_kappas[post_num_uniq] = 0;
-			whatsup.tau_sigma_kappas[post_num_uniq] = json_data.ts;
-			ttl = window.setTimeout(killme, 15000, post_num_uniq); 
-		}
-		else {
-			html_message_root_class = "<div class='message_post long_message_post' id=" + id_name_post_wrapper;
-			whatsup.lambda_kappas[post_num_uniq] = 0;
-			whatsup.tau_lambda_kappas[post_num_uniq] = json_data.ts;
-			whatsup.lambda_kappas_ttl[post_num_uniq] = window.setTimeout(killme, 20000, post_num_uniq);
-		}
-
-		var m = ( d.getUTCMinutes() < 10 ? "0" : "") + d.getUTCMinutes();
-
-		html_message =  html_message_root_class + ">" + 
-						"<div class ='h6 glow message_post_user' id=" + id_name_post_user + ">" +
-						json_data.user + " " + d.getUTCHours()+":"+ m + " " + "<span class='message_score'>" + 0 + "</span>" + "</div>" +
-						"<div class='glow message_post_msg' id=" + id_name_post_msg + ">" +
-						json_data.msg + "</div>" + "<div class='reply_area' id=" + id_reply_area + 
-						"><textarea class='reply_comment' id=" + id_reply_comment + " rows=3></textarea>" + 
-						"</br> <button class='btn btn-primary btn-xs' type='submit' id=" + id_reply_btn + ">Reply</button></div>" +
-						"</div>";
-	}
-
-	function create_dom_element() {
-		var new_div = document.createElement('div');
-	
-		if (is_short_msg) {
-			destination_div = "short_messages_grid";
-			new_div.style.marginLeft= (Math.floor(Math.random()* 18)).toString() + "%";
-			html_message = "<li>" + html_message + "</li>";
-		}
-		else
-			destination_div = "long_messages";
-
-		new_div.innerHTML = html_message;
-		var msg_div = get_element(destination_div);
-		msg_div.appendChild(new_div);
-		// Scroll to the top to newest message when the message box overflows
-		msg_div.scrollTop = 0;
-	}
-
-	function add_handlers() {
-		//id_name_* has quotes in it from making html, so strip those before using for jquery
-
-		$("#" + id_name_post_wrapper.replace(/'/g, "")).on("click", function() {
-			var element = event.target.id;
-
-			// Check that the element name has 'wrapper' in it, so we know we clicked that and not
-			// the text or user name divs of the element
-			// This is needed because a click on a child element seems to go through to the parent as well
-			if (String(element).indexOf("wrapper") != -1) {
-				this.parentNode.removeChild(this);
-			}		
-		})
-
-		$('#' + id_name_post_user.replace(/'/g, "")).on("click", function() {
-			// CalculateScore();
-			SendScoreMessage(ws, whatsup.id, json_data.user, String(this.parentNode.id), 1);
-		})
-
-		$('#' + id_name_post_msg.replace(/'/g, "")).on("click", function() {
-			$('#ra' + String(this.parentNode.id)).slideToggle();		
-		})
-
-		$('#' + id_reply_btn.replace(/'/g, "")).on("click", function() {
-			ReplyToMessage(ws, whatsup.id, json_data.user, String(this.parentNode.parentNode.id));
-		})
-	}
-
-	function append_to_dom() {
-		create_html_of_message();
-		create_dom_element();
-		add_handlers();
-	}
-
-	return {
-		constructor: constructor,
-		append_to_dom: append_to_dom
-	}
-
-})();
+function add_to_dom(comment) {
+	comment.set_uniq_id();
+	comment.generate_ids();
+	comment.generate_root_html();
+	comment.generate_html();
+	comment.generate_dom_element();
+	comment.add_dom_element();
+	comment.add_handler();
+}
 
 function UpdateUserCount(data) {
 	document.getElementById('time').innerHTML = "Number of Users: " + data.num_users;
