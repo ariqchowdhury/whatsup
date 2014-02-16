@@ -114,73 +114,111 @@ public class WhatsupSocket extends BaseWebSocketHandler {
 		}
 		JSONObject jsonObject = (JSONObject) obj;
 		String type = (String) jsonObject.get("type");
-		
-		int num_users;
-		JSONObject usr_cnt_msg = new JSONObject();
 
 		if (type.equals("init")) {
-			String ch_key = (String) jsonObject.get("msg");
-			
-			connection.data("chid", ch_key);
-			
-			if (channel_collection.containsKey(ch_key)) {
-				channel_collection.get(ch_key).add(connection);				
-			}
-			else {
-				List<WebSocketConnection> users = Collections.synchronizedList(new ArrayList<WebSocketConnection>(550));
-				users.add(connection);
-				channel_collection.put(ch_key, users);
-			}
-			
-			num_users = channel_collection.get(ch_key).size();
-			usr_cnt_msg.put("num_users", num_users);
-			
-			ParaBroadcastMsg(usr_cnt_msg.toJSONString(), ch_key);
-			
+			HandleInit(connection, jsonObject);
 		}
 		else if (type.equals("msg")) {
-			//broadcast
-			String src = (String) jsonObject.get("src");
-			String msg = (String) jsonObject.get("msg");
-			String user = (String) jsonObject.get("user");
-			String comment_id = UUID.randomUUID().toString();
-			long ms = System.currentTimeMillis();
-							
-			JSONObject outgoing_message = new JSONObject();
-			outgoing_message.put("msg", msg);
-			outgoing_message.put("user", user);
-			outgoing_message.put("ts", ms);
-			outgoing_message.put("comment_id", comment_id);
-				
-			final String json_outgoing_message = outgoing_message.toJSONString();
-			
-			final WebSocketConnection conn = connection;
-				
-			ParaBroadcastMsg(json_outgoing_message, src);
-			
-			// WriteCommentToDatabase(user, sanitized_msg, src, comment_id);
-
+			HandleMessage(connection, jsonObject);
 		}	
 		else if (type.equals("score")) {
-			String src = (String) jsonObject.get("src");
-			String comment_id = (String) jsonObject.get("comment_id");
-			String user = (String) jsonObject.get("user");
-			Long score_change = (Long) jsonObject.get("score_change");
-
-			JSONObject score_update = new JSONObject();
-			score_update.put("score", score_change);
-			score_update.put("comment_id", comment_id);
-
-			final String json_score_update = score_update.toJSONString();
-			final WebSocketConnection conn = connection;
-
-			ParaBroadcastMsg(json_score_update, src);
+			HandleScore(connection, jsonObject);
+		}
+		else if (type.equals("reply")) {
+			HandleReply(connection, jsonObject);
 		}
 		
 	}
+
+	@SuppressWarnings("unchecked")
+	private void HandleInit(WebSocketConnection connection, JSONObject jsonObject) {
+		int num_users;
+		JSONObject usr_cnt_msg = new JSONObject();
+
+		String ch_key = (String) jsonObject.get("msg");
+			
+		connection.data("chid", ch_key);
+		
+		if (channel_collection.containsKey(ch_key)) {
+			channel_collection.get(ch_key).add(connection);				
+		}
+		else {
+			List<WebSocketConnection> users = Collections.synchronizedList(new ArrayList<WebSocketConnection>(550));
+			users.add(connection);
+			channel_collection.put(ch_key, users);
+		}
+		
+		num_users = channel_collection.get(ch_key).size();
+		usr_cnt_msg.put("num_users", num_users);
+		
+		ParaBroadcastMsg(usr_cnt_msg.toJSONString(), ch_key);
+	}
+
+	@SuppressWarnings("unchecked")
+	private void HandleMessage(WebSocketConnection connection, JSONObject jsonObject) {
+		String src = (String) jsonObject.get("src");
+		String msg = (String) jsonObject.get("msg");
+		String user = (String) jsonObject.get("user");
+		String comment_id = UUID.randomUUID().toString();
+		long ms = System.currentTimeMillis();
+						
+		JSONObject outgoing_message = new JSONObject();
+		outgoing_message.put("msg", msg);
+		outgoing_message.put("user", user);
+		outgoing_message.put("ts", ms);
+		outgoing_message.put("comment_id", comment_id);
+			
+		final String json_outgoing_message = outgoing_message.toJSONString();
+		
+		// final WebSocketConnection conn = connection;
+			
+		ParaBroadcastMsg(json_outgoing_message, src);
+		
+		// WriteCommentToDatabase(user, sanitized_msg, src, comment_id);
+	}
+
+	@SuppressWarnings("unchecked")
+	private void HandleScore(WebSocketConnection connection, JSONObject jsonObject) {
+		String src = (String) jsonObject.get("src");
+		String comment_id = (String) jsonObject.get("comment_id");
+		String user = (String) jsonObject.get("user");
+		Long score_change = (Long) jsonObject.get("score_change");
+
+		JSONObject score_update = new JSONObject();
+		score_update.put("score", score_change);
+		score_update.put("comment_id", comment_id);
+
+		final String json_score_update = score_update.toJSONString();
+		// final WebSocketConnection conn = connection;
+
+		ParaBroadcastMsg(json_score_update, src);
+	}
+
+	@SuppressWarnings("unchecked")
+	private void HandleReply(WebSocketConnection connection, JSONObject jsonObject) {
+		String src = (String) jsonObject.get("src");
+		String comment_id = (String) jsonObject.get("comment_id");
+		String user = (String) jsonObject.get("user");
+		String msg = (String) jsonObject.get("msg");
+		String reply_id = UUID.randomUUID().toString();
+		long ms = System.currentTimeMillis();
+						
+		JSONObject outgoing_message = new JSONObject();
+		outgoing_message.put("reply_to", comment_id);
+		outgoing_message.put("msg", msg);
+		outgoing_message.put("user", user);
+		outgoing_message.put("ts", ms);
+		outgoing_message.put("reply_id", reply_id);
+
+		final String json_outgoing_message = outgoing_message.toJSONString();
+		ParaBroadcastMsg(json_outgoing_message, src);
+
+		// WriteCommentToDatabase(user, sanitized_msg, src, comment_id, reply_id);
+	}
+
 	
 	@SuppressWarnings("unchecked")
-	public void WriteCommentToDatabase(String user, String sanitized_msg, String src, String comment_id) {
+	private void WriteCommentToDatabase(String user, String sanitized_msg, String src, String comment_id) {
 		String uuid = UUID.randomUUID().toString();
 
 		JSONArray arg_list = new JSONArray();
@@ -210,7 +248,42 @@ public class WhatsupSocket extends BaseWebSocketHandler {
 		}
 	}
 	
-	public Void ParaBroadcastMsg(final String msg, String src) {
+	@SuppressWarnings("unchecked")
+	private void WriteReplyToDatabase(String user, String sanitized_msg, String src, String comment_id, String reply_id) {
+		String uuid = UUID.randomUUID().toString();
+
+		JSONArray arg_list = new JSONArray();
+		arg_list.add(user);
+		arg_list.add(sanitized_msg);
+		arg_list.add(src);
+		arg_list.add(comment_id);
+
+		JSONObject celery_msg = new JSONObject();
+		celery_msg.put("id", uuid);
+		celery_msg.put("task", task_queue_write_comment_to_db);
+		celery_msg.put("args", arg_list);
+
+		String message_body = celery_msg.toJSONString();
+
+		try {
+			channel.basicPublish(exchangeName, routingKey, 
+								 new AMQP.BasicProperties.Builder()
+								 	.contentType("application/json").userId("guest").build(),
+								 	 message_body.getBytes("ASCII"));
+		}
+		catch (IOException e) {
+			// Something wrong with connection to rabbitmq server
+			// TODO: log error message
+			e.printStackTrace();
+			return;
+		}
+
+		// JSONArray reply_arg_list = new JSONArray();
+		// arg_list.add(comment_id);
+		// arg_list.add(reply_id);
+	}
+
+	private Void ParaBroadcastMsg(final String msg, String src) {
 		int num_threads = 2;
 		
 		ExecutorService executor = Executors.newFixedThreadPool(num_threads);
@@ -259,7 +332,7 @@ public class WhatsupSocket extends BaseWebSocketHandler {
 		return null;
 	}
 	
-	public static Void BroadcastMsg(List<WebSocketConnection> conn, String msg) {
+	private static Void BroadcastMsg(List<WebSocketConnection> conn, String msg) {
 		for (WebSocketConnection client : conn) {
 			client.send(msg);
 		}

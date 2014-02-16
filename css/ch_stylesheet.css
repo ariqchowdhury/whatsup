@@ -13,10 +13,10 @@ html, body {
 }
 
 .message_divider {
-	background-color: green;
+	/*background-color: green;*/
 	margin: 0px;
 	height: 100%;
-	opacity: 0.4;
+	/*opacity: 0.4;*/
 	overflow: hidden;
 }
 
@@ -29,7 +29,7 @@ html, body {
 #short_messages {
 	width: 33.3%;
 	float: right;
-	background-color: red;
+	/*background-color: red;*/
 }
 
 #short_messages_grid {
@@ -132,7 +132,6 @@ html, body {
 	word-wrap: break-word;
 	font-family: "Droid Sans";
 	margin: 8px;
-
 }
 
 #comment {
@@ -147,6 +146,14 @@ html, body {
 	display: block;
 	margin-left: 10px;
 	margin-right: auto;
+}
+
+.reply_comment {
+	width: 100%;
+}
+
+.reply_area {
+	display: none;
 }
 
 ::-webkit-scrollbar {

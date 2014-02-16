@@ -9,6 +9,11 @@ whatsup.tau_sigma_kappas = {};
 var ttl;
 whatsup.lambda_kappas_ttl = {};
 
+var comment_type = {
+	COMMENT: 0,
+	REPLY: 1
+};
+
 function get_element (el) {
 	if (typeof el == 'string') return document.getElementById(el);
 	return el;
@@ -55,10 +60,13 @@ function SetupWebsocket(server, id) {
 		else if (data.hasOwnProperty('score')) {
 			UpdateCommentScore(data);
 		}
-		else {
-			AppendMessageModule.constructor(data, ws);
+		else if (data.hasOwnProperty('reply_to')) {
+			AppendMessageModule.constructor(data, ws, comment_type.REPLY);
 			AppendMessageModule.append_to_dom();
-
+		}
+		else {
+			AppendMessageModule.constructor(data, ws, comment_type.COMMENT);
+			AppendMessageModule.append_to_dom();
 		}
 	};
 
@@ -107,26 +115,59 @@ function SendScoreMessage(websocket, id, user, comment_id, score_change) {
 	websocket.send(JSON.stringify(msg));
 }
 
+function ReplyToMessage(websocket, id, user, comment_id) {	
+	var comment = $('#rc' + comment_id).val();
+
+	var msg = {
+		type: 'reply',
+		src: id,
+		user: user,
+		comment_id: comment_id,
+		msg: comment
+	}
+
+	websocket.send(JSON.stringify(msg));
+}
+
 var AppendMessageModule = (function () {
 	var json_data;
 	var is_short_msg;
 	var html_message;
 	var id_name_post_wrapper;
 	var id_name_post_user;
+	var id_name_post_msg;
+	var id_reply_comment;
+	var id_reply_area;
+	var id_reply_btn;
+	var mytype;
 	var ws;
 
-	function constructor(data, websocket) {
+	function constructor(data, websocket, type) {
 		json_data = data;
 		is_short_msg = (data.msg.length < 18);
 		ws = websocket;
+		mytype = type;
 	}
 
 	function create_html_of_message() {
 		var html_message_root_class;
-		post_num_uniq = json_data.comment_id;
+		
+		if (mytype == comment_type.COMMENT) {
+			post_num_uniq = json_data.comment_id;
+		} 
+		else if (mytype == comment_type.REPLY) {
+			post_num_uniq = json_data.reply_id;
+		}
+		else {
+			console.log(mytype);	
+		}
 
 		id_name_post_wrapper = "'" + post_num_uniq + "'"; 
-		id_name_post_user = "'mpu_" + post_num_uniq + "'";
+		id_name_post_user = "'mpu" + post_num_uniq + "'";
+		id_name_post_msg = "'mpm" + post_num_uniq + "'";
+		id_reply_comment = "'rc" + post_num_uniq + "'";
+		id_reply_area = "'ra" + post_num_uniq + "'";
+		id_reply_btn = "'b" + post_num_uniq + "'";
 
 		var d = new Date(0);
 		d.setUTCMilliseconds(json_data.ts);
@@ -149,8 +190,10 @@ var AppendMessageModule = (function () {
 		html_message =  html_message_root_class + ">" + 
 						"<div class ='h6 glow message_post_user' id=" + id_name_post_user + ">" +
 						json_data.user + " " + d.getUTCHours()+":"+ m + " " + "<span class='message_score'>" + 0 + "</span>" + "</div>" +
-						"<div class='glow message_post_msg' id='mpm_" + post_num_uniq + "'>" +
-						json_data.msg + "</div>" + 
+						"<div class='glow message_post_msg' id=" + id_name_post_msg + ">" +
+						json_data.msg + "</div>" + "<div class='reply_area' id=" + id_reply_area + 
+						"><textarea class='reply_comment' id=" + id_reply_comment + " rows=3></textarea>" + 
+						"</br> <button class='btn btn-primary btn-xs' type='submit' id=" + id_reply_btn + ">Reply</button></div>" +
 						"</div>";
 	}
 
@@ -187,8 +230,17 @@ var AppendMessageModule = (function () {
 		})
 
 		$('#' + id_name_post_user.replace(/'/g, "")).on("click", function() {
+			// CalculateScore();
 			SendScoreMessage(ws, whatsup.id, json_data.user, String(this.parentNode.id), 1);
-		})		
+		})
+
+		$('#' + id_name_post_msg.replace(/'/g, "")).on("click", function() {
+			$('#ra' + String(this.parentNode.id)).slideToggle();		
+		})
+
+		$('#' + id_reply_btn.replace(/'/g, "")).on("click", function() {
+			ReplyToMessage(ws, whatsup.id, json_data.user, String(this.parentNode.parentNode.id));
+		})
 	}
 
 	function append_to_dom() {
