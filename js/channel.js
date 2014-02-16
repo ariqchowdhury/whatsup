@@ -9,11 +9,6 @@ whatsup.tau_sigma_kappas = {};
 var ttl;
 whatsup.lambda_kappas_ttl = {};
 
-var comment_type = {
-	COMMENT: 0,
-	REPLY: 1
-};
-
 Inheritance_Manager = {};
 Inheritance_Manager.extend = function (subClass, baseClass) {
 	function inheritance() { }
@@ -134,21 +129,30 @@ LongComment.prototype.generate_root_html = function() {
 	this.html_message_root_class = "<div class='message_post long_message_post' id=" + this.id_name_post_wrapper;
 	whatsup.lambda_kappas[this.post_num_uniq] = 0;
 	whatsup.tau_lambda_kappas[this.post_num_uniq] = this.data.ts;
-	whatsup.lambda_kappas_ttl[this.post_num_uniq] = window.setTimeout(killme, 20000, this.post_num_uniq);
+	whatsup.lambda_kappas_ttl[this.post_num_uniq] = window.setTimeout(killme, 60000, this.post_num_uniq);
 };
 
 LongComment.prototype.generate_dom_element = function() {
 	this.new_div = document.createElement('div');
 	this.destination_div = "long_messages";
+	this.id_reply_root = "'rr" + this.post_num_uniq + "'";
+	this.html_message = "<ul class='reply_tree' id=" + this.id_reply_root + ">" + this.html_message + "</ul>"
 }
 
 ReplyComment = function (websocket, json_data) {
-	ReplyComment.baseConstructor.call(this, websocket, json_data);	
+	ReplyComment.baseConstructor.call(this, websocket, json_data);
+	this.size = this.data.msg.length;
 }
 Inheritance_Manager.extend(ReplyComment, LongComment);
 ReplyComment.prototype.set_uniq_id = function() {
 	this.post_num_uniq = this.data.reply_id;
 }
+ReplyComment.prototype.generate_dom_element = function() {
+	this.new_div = document.createElement('div');
+	this.destination_div = "rr" + this.data.reply_to;
+	this.id_reply_root = "'rr" + this.post_num_uniq + "'";
+	this.html_message = "<li class='reply'>" + "<ul class='reply_tree' id=" + this.id_reply_root + ">" + this.html_message + "</ul>" + "</li>";
+};
 
 function get_element (el) {
 	if (typeof el == 'string') return document.getElementById(el);
@@ -268,6 +272,8 @@ function ReplyToMessage(websocket, id, user, comment_id) {
 	}
 
 	websocket.send(JSON.stringify(msg));
+	$('#rc' + comment_id).val('');
+	$('#ra' + comment_id).slideToggle();
 }
 
 

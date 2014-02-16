@@ -156,6 +156,16 @@ html, body {
 	display: none;
 }
 
+.reply_tree {
+	list-style: none;
+	padding: 0px;
+	margin: 0px;
+}
+
+.reply {
+	margin-left: 10px;
+}
+
 ::-webkit-scrollbar {
 	width: 5px;
 }
