@@ -48,8 +48,7 @@ def sanitize_cass_rows(cass_rows):
 	return myrows
 
 @app.task(base=DatabaseTask)
-def write_to_db(user, msg, src, comment_id):
-	
+def write_to_db(user, msg, src, comment_id):	
 	insert_into_comment = ("INSERT INTO comment (id, user, data, score, ts) "
 						   "VALUES (%s, '%s', %s, 0, dateof(now())) "
 						   % (comment_id, user, msg))
@@ -59,6 +58,24 @@ def write_to_db(user, msg, src, comment_id):
 										 % (comment_id, src))
 	
 	batch_cmd = ["BEGIN BATCH ", insert_into_comment, insert_into_comment_channel_index, "APPLY BATCH;"]
+
+	write_to_db.db.execute(''.join(batch_cmd))
+
+@app.task(base=DatabaseTask)
+def write_reply_to_db(user, msg, src, comment_id, parent_id):
+	insert_into_comment = ("INSERT INTO comment (id, user, data, score, ts) "
+						   "VALUES (%s, '%s', %s, 0, dateof(now())) "
+						   % (comment_id, user, msg))
+
+	insert_into_comment_channel_index = ("INSERT INTO comment_channel_index (cmnt_id, ch_id) "
+										 "VALUES (%s, %s) "
+										 % (comment_id, src))
+
+	insert_into_reply = ("INSERT INTO comment_reply_index (cmnt_id, rep_id) "
+						   "VALUES (%s, %s) "
+						   % (parent_id, comment_id))
+	
+	batch_cmd = ["BEGIN BATCH ", insert_into_comment, insert_into_comment_channel_index, insert_into_reply, "APPLY BATCH;"]
 
 	write_to_db.db.execute(''.join(batch_cmd))
 

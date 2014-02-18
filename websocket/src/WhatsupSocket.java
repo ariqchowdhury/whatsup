@@ -45,6 +45,7 @@ public class WhatsupSocket extends BaseWebSocketHandler {
 
 	private String task_queue_test = "whatsup.task_queue.test";
 	private String task_queue_write_comment_to_db = "whatsup.task_queue.write_to_db";
+	private String task_queue_write_reply_to_db = "whatsup.task_queue.write_reply_to_db";
 
 	WhatsupSocket() throws IOException {
 		super();
@@ -169,12 +170,11 @@ public class WhatsupSocket extends BaseWebSocketHandler {
 		outgoing_message.put("comment_id", comment_id);
 			
 		final String json_outgoing_message = outgoing_message.toJSONString();
-		
-		// final WebSocketConnection conn = connection;
-			
+				
 		ParaBroadcastMsg(json_outgoing_message, src);
 		
-		// WriteCommentToDatabase(user, sanitized_msg, src, comment_id);
+		String sanitized_msg = "\'" + msg + "\'";
+		WriteCommentToDatabase(user, sanitized_msg, src, comment_id);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -189,7 +189,6 @@ public class WhatsupSocket extends BaseWebSocketHandler {
 		score_update.put("comment_id", comment_id);
 
 		final String json_score_update = score_update.toJSONString();
-		// final WebSocketConnection conn = connection;
 
 		ParaBroadcastMsg(json_score_update, src);
 	}
@@ -213,7 +212,8 @@ public class WhatsupSocket extends BaseWebSocketHandler {
 		final String json_outgoing_message = outgoing_message.toJSONString();
 		ParaBroadcastMsg(json_outgoing_message, src);
 
-		// WriteCommentToDatabase(user, sanitized_msg, src, comment_id, reply_id);
+		String sanitized_msg = "\'" + msg + "\'";
+		WriteReplyToDatabase(user, sanitized_msg, src, comment_id, reply_id);
 	}
 
 	
@@ -248,6 +248,7 @@ public class WhatsupSocket extends BaseWebSocketHandler {
 		}
 	}
 	
+	// reply_id is the id of the comment that is the reply; comment_id is the parent of the reply
 	@SuppressWarnings("unchecked")
 	private void WriteReplyToDatabase(String user, String sanitized_msg, String src, String comment_id, String reply_id) {
 		String uuid = UUID.randomUUID().toString();
@@ -256,11 +257,12 @@ public class WhatsupSocket extends BaseWebSocketHandler {
 		arg_list.add(user);
 		arg_list.add(sanitized_msg);
 		arg_list.add(src);
+		arg_list.add(reply_id);
 		arg_list.add(comment_id);
 
 		JSONObject celery_msg = new JSONObject();
 		celery_msg.put("id", uuid);
-		celery_msg.put("task", task_queue_write_comment_to_db);
+		celery_msg.put("task", task_queue_write_reply_to_db);
 		celery_msg.put("args", arg_list);
 
 		String message_body = celery_msg.toJSONString();
@@ -278,9 +280,6 @@ public class WhatsupSocket extends BaseWebSocketHandler {
 			return;
 		}
 
-		// JSONArray reply_arg_list = new JSONArray();
-		// arg_list.add(comment_id);
-		// arg_list.add(reply_id);
 	}
 
 	private Void ParaBroadcastMsg(final String msg, String src) {
