@@ -88,13 +88,13 @@ public class WhatsupSocket extends BaseWebSocketHandler {
 	@SuppressWarnings("unchecked")
 	public void onClose(WebSocketConnection connection) {
 		JSONObject usr_cnt_msg = new JSONObject();
-		String ch_key = (String) connection.data("chid");
+		String ch_id = (String) connection.data("chid");
 		// Connection holds which chid it belongs to, so use that to find it in the hash and then remove it
-		channel_collection.get(ch_key).remove(connection);
-		int num_users = channel_collection.get(ch_key).size();
+		channel_collection.get(ch_id).remove(connection);
+		int num_users = GetNumUsers(ch_id);
 		usr_cnt_msg.put("num_users", num_users);
 		
-		ParaBroadcastMsg(usr_cnt_msg.toJSONString(), ch_key);
+		ParaBroadcastMsg(usr_cnt_msg.toJSONString(), ch_id);
 		//System.out.println("CLOSED connection");
 	}
 	
@@ -136,23 +136,23 @@ public class WhatsupSocket extends BaseWebSocketHandler {
 		int num_users;
 		JSONObject usr_cnt_msg = new JSONObject();
 
-		String ch_key = (String) jsonObject.get("msg");
+		String ch_id = (String) jsonObject.get("msg");
 			
-		connection.data("chid", ch_key);
+		connection.data("chid", ch_id);
 		
-		if (channel_collection.containsKey(ch_key)) {
-			channel_collection.get(ch_key).add(connection);				
+		if (channel_collection.containsKey(ch_id)) {
+			channel_collection.get(ch_id).add(connection);				
 		}
 		else {
 			List<WebSocketConnection> users = Collections.synchronizedList(new ArrayList<WebSocketConnection>(550));
 			users.add(connection);
-			channel_collection.put(ch_key, users);
+			channel_collection.put(ch_id, users);
 		}
 		
-		num_users = channel_collection.get(ch_key).size();
+		num_users = channel_collection.get(ch_id).size();
 		usr_cnt_msg.put("num_users", num_users);
 		
-		ParaBroadcastMsg(usr_cnt_msg.toJSONString(), ch_key);
+		ParaBroadcastMsg(usr_cnt_msg.toJSONString(), ch_id);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -337,6 +337,10 @@ public class WhatsupSocket extends BaseWebSocketHandler {
 		}
 		
 		return null;
+	}
+
+	private int GetNumUsers(String ch_id) {
+		return channel_collection.get(ch_id).size();
 	}
 	
 	public static void main(String[] args) {
