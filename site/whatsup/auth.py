@@ -2,6 +2,7 @@ import tornado.web
 from tornado import gen
 
 from os import urandom
+import re
 
 from whatsup.task_queue import get_hashed_pswd
 from whatsup.task_queue import DecodeGetHashedPswd
@@ -13,7 +14,6 @@ from whatsup.task_queue import encrypt_password
 
 import whatsup.core
 from whatsup.cookies import Cookies
-
 
 decode = DecodeGetHashedPswd
 
@@ -51,6 +51,8 @@ class RegisterHandler(whatsup.core.BaseHandler):
 	@gen.coroutine
 	def post(self):
 		username = self.get_argument("username")
+
+		username = re.sub(r'[^\w]', '', username)
 
 		# Check if user already exists in database
 		response = yield gen.Task(does_user_exist.apply_async, args=[username])

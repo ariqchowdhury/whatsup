@@ -3,6 +3,7 @@ import uuid
 import tornado.web
 import tornado.websocket
 from tornado import gen
+from htmllaundry import strip_markup
 
 from whatsup.task_queue import get_channel_title_from_id, DecodeGetChannelTitleFromId, create_channel
 import whatsup.core
@@ -58,11 +59,11 @@ class CreateChannelHandler(whatsup.core.BaseHandler):
 	@tornado.web.asynchronous
 	@gen.coroutine
 	def post(self):
-		title = self.get_argument("title")
-		tag = self.get_argument("tag")
-		length = self.get_argument("length")
-		dmy = self.get_argument("start_date")
-		hour = self.get_argument("hour")
+		title = strip_markup(self.get_argument("title"))
+		tag = strip_markup(self.get_argument("tag"))
+		length = strip_markup(self.get_argument("length"))
+		dmy = strip_markup(self.get_argument("start_date"))
+		hour = strip_markup(self.get_argument("hour"))
 		user = self.current_user
 		ch_id = uuid.uuid4()
 		url = uuid_to_url(ch_id)
