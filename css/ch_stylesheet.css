@@ -23,6 +23,7 @@ html, body {
 #long_messages {
 	width: 66.7%;
 	float: left;
+	overflow: auto;
 }
 
 
