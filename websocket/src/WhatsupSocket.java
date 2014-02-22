@@ -29,6 +29,10 @@ import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.Channel;
 
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Cleaner;
+import org.jsoup.safety.Whitelist;
+
 import static org.webbitserver.WebServers.createWebServer;
 
 public class WhatsupSocket extends BaseWebSocketHandler {
@@ -173,7 +177,7 @@ public class WhatsupSocket extends BaseWebSocketHandler {
 				
 		ParaBroadcastMsg(json_outgoing_message, src);
 		
-		String sanitized_msg = "\'" + msg + "\'";
+		String sanitized_msg = SanitizeMessage(msg);
 		WriteCommentToDatabase(user, sanitized_msg, src, comment_id);
 	}
 
@@ -212,7 +216,7 @@ public class WhatsupSocket extends BaseWebSocketHandler {
 		final String json_outgoing_message = outgoing_message.toJSONString();
 		ParaBroadcastMsg(json_outgoing_message, src);
 
-		String sanitized_msg = "\'" + msg + "\'";
+		String sanitized_msg = SanitizeMessage(msg);
 		WriteReplyToDatabase(user, sanitized_msg, src, comment_id, reply_id);
 	}
 
@@ -341,6 +345,13 @@ public class WhatsupSocket extends BaseWebSocketHandler {
 
 	private int GetNumUsers(String ch_id) {
 		return channel_collection.get(ch_id).size();
+	}
+
+	private String SanitizeMessage(String unclean_msg) {
+		String clean_msg = Jsoup.clean(unclean_msg, Whitelist.none());
+		clean_msg = "\'" + clean_msg + "\'";
+
+		return clean_msg;
 	}
 	
 	public static void main(String[] args) {

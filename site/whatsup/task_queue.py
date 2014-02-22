@@ -1,3 +1,5 @@
+import uuid
+
 from celery import Celery
 from celery import Task
 
@@ -49,35 +51,47 @@ def sanitize_cass_rows(cass_rows):
 
 @app.task(base=DatabaseTask)
 def write_to_db(user, msg, src, comment_id):	
-	insert_into_comment = ("INSERT INTO comment (id, user, data, score, ts) "
-						   "VALUES (%s, '%s', %s, 0, dateof(now())) "
-						   % (comment_id, user, msg))
+	p1 = write_reply_to_db.db.prepare("""
+        INSERT INTO comment (id, user, data, score, ts)
+        VALUES (?, ?, ?, 0, dateof(now()))
+		""")
 
-	insert_into_comment_channel_index = ("INSERT INTO comment_channel_index (cmnt_id, ch_id) "
-										 "VALUES (%s, %s) "
-										 % (comment_id, src))
-	
-	batch_cmd = ["BEGIN BATCH ", insert_into_comment, insert_into_comment_channel_index, "APPLY BATCH;"]
+	p2 = write_reply_to_db.db.prepare("""
+        INSERT INTO comment_channel_index (cmnt_id, ch_id)
+        VALUES (?, ?)
+		""")
 
-	write_to_db.db.execute(''.join(batch_cmd))
+	comment_id_as_uuid = uuid.UUID(comment_id)
+	src_as_uuid = uuid.UUID(src)
+
+	create_channel.db.execute(p1.bind((comment_id_as_uuid, user, msg)))
+	create_channel.db.execute(p2.bind((comment_id_as_uuid, src_as_uuid)))
 
 @app.task(base=DatabaseTask)
 def write_reply_to_db(user, msg, src, comment_id, parent_id):
-	insert_into_comment = ("INSERT INTO comment (id, user, data, score, ts) "
-						   "VALUES (%s, '%s', %s, 0, dateof(now())) "
-						   % (comment_id, user, msg))
 
-	insert_into_comment_channel_index = ("INSERT INTO comment_channel_index (cmnt_id, ch_id) "
-										 "VALUES (%s, %s) "
-										 % (comment_id, src))
+	p1 = write_reply_to_db.db.prepare("""
+        INSERT INTO comment (id, user, data, score, ts)
+        VALUES (?, ?, ?, 0, dateof(now()))
+		""")
 
-	insert_into_reply = ("INSERT INTO comment_reply_index (cmnt_id, rep_id) "
-						   "VALUES (%s, %s) "
-						   % (parent_id, comment_id))
-	
-	batch_cmd = ["BEGIN BATCH ", insert_into_comment, insert_into_comment_channel_index, insert_into_reply, "APPLY BATCH;"]
+	p2 = write_reply_to_db.db.prepare("""
+        INSERT INTO comment_channel_index (cmnt_id, ch_id)
+        VALUES (?, ?)
+		""")
 
-	write_to_db.db.execute(''.join(batch_cmd))
+	p3 = write_reply_to_db.db.prepare("""
+        INSERT INTO comment_reply_index (cmnt_id, rep_id)
+        VALUES (?, ?)
+		""")
+
+	comment_id_as_uuid = uuid.UUID(comment_id)
+	src_as_uuid = uuid.UUID(src)
+	parent_id_as_uuid = uuid.UUID(parent_id)
+
+	create_channel.db.execute(p1.bind((comment_id_as_uuid, user, msg)))
+	create_channel.db.execute(p2.bind((comment_id_as_uuid, src_as_uuid)))
+	create_channel.db.execute(p3.bind((parent_id_as_uuid, comment_id_as_uuid)))
 
 @app.task(base=DatabaseTask)
 def create_channel(title, tag, length, dmy, hour, user, ch_id, url):
