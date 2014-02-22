@@ -81,28 +81,36 @@ def write_reply_to_db(user, msg, src, comment_id, parent_id):
 
 @app.task(base=DatabaseTask)
 def create_channel(title, tag, length, dmy, hour, user, ch_id, url):
-	insert_into_channels = ("INSERT INTO channels (id, dmy, start, ts, len, user, title, tag, url) "
-							"VALUES (%s, '%s', '%s', dateof(now()), %s, '%s', '%s', '%s', '%s') "
-							% (ch_id, dmy, dmy+" "+hour, length, user, title, tag, url))
 
-	insert_into_channels_by_id = ("INSERT INTO channels_by_id (id, dmy, start, ts, len, user, title, tag, url) "
-								  "VALUES (%s, '%s', '%s', dateof(now()), %s, '%s', '%s', '%s', '%s') "
-								  % (ch_id, dmy, dmy+" "+hour, length, user, title, tag, url))
+	p1 = create_channel.db.prepare("""
+        INSERT INTO channels (id, dmy, start, ts, len, user, title, tag, url)
+        VALUES (?, ?, ?, dateof(now()), ?, ?, ?, ?, ?)
+		""")
 
-	insert_into_user_channel_index = ("INSERT INTO user_channel_index (user, ch_id) VALUES ('%s', %s) "
-									  % (user, ch_id))
+	p2 = create_channel.db.prepare("""
+        INSERT INTO channels_by_id (id, dmy, start, ts, len, user, title, tag, url)
+        VALUES (?, ?, ?, dateof(now()), ?, ?, ?, ?, ?)
+		""")
 
-	batch_cmd = ["BEGIN BATCH ", insert_into_channels, insert_into_channels_by_id, insert_into_user_channel_index, "APPLY BATCH;"]
-	create_channel.db.execute(''.join(batch_cmd))
+	p3 = create_channel.db.prepare("""
+        INSERT INTO user_channel_index (user, ch_id) VALUES (?, ?)
+		""")
+
+	create_channel.db.execute(p1.bind((ch_id, dmy, hour, length, user, title, tag, url)))
+	create_channel.db.execute(p2.bind((ch_id, dmy, hour, length, user, title, tag, url)))
+	create_channel.db.execute(p3.bind((user, ch_id)))
+
 
 @app.task(base=DatabaseTask)
 def generate_frontpage(date):
-	rows = generate_frontpage.db.execute("SELECT title, tag, start, url, dmy FROM channels WHERE dmy='%s' ORDER BY start;" % date)
+	p = generate_frontpage.db.prepare("SELECT title, tag, start, url, dmy FROM channels WHERE dmy=? ORDER BY start;")
+	rows = generate_frontpage.db.execute(p.bind((date,)))
 	return sanitize_cass_rows(rows)
 
 @app.task(base=DatabaseTask)
 def get_hashed_pswd(username):
-	rows = get_hashed_pswd.db.execute("SELECT salt, pswd FROM users where user='%s'" % username)
+	p = get_hashed_pswd.db.prepare("SELECT salt, pswd FROM users where user=?")
+	rows = get_hashed_pswd.db.execute(p.bind((username,)))
 	return sanitize_cass_rows(rows)
 
 @app.task
@@ -115,15 +123,18 @@ def encrypt_password(salted_pswd):
 
 @app.task(base=DatabaseTask)
 def does_user_exist(username):
-	rows = does_user_exist.db.execute("SELECT * FROM users where user='%s'" % username)
+	p = does_user_exist.db.prepare("SELECT * FROM users where user=?")
+	rows = does_user_exist.db.execute(p.bind((username,)))
 	return sanitize_cass_rows(rows)
 
 @app.task(base=DatabaseTask)
 def add_user(username, salt, hash, email):
-	add_user.db.execute("INSERT INTO users (user, salt, pswd, email) VALUES ('%s', '%s', '%s', '%s');" % (username, salt, hash, email))
+	p = add_user.db.prepare("INSERT INTO users (user, salt, pswd, email) VALUES (?, ?, ?, ?);")
+	add_user.db.execute(p.bind((username, salt, hash, email)))
 
 @app.task(base=DatabaseTask)
 def get_channel_title_from_id(ch_id):
-	rows = get_channel_title_from_id.db.execute("SELECT title from channels_by_id WHERE id=%s" % ch_id)
+	p = get_channel_title_from_id.db.prepare("SELECT title from channels_by_id WHERE id=?")
+	rows = get_channel_title_from_id.db.execute(p.bind((ch_id,)))
 	return sanitize_cass_rows(rows)
 

@@ -1,4 +1,6 @@
 import uuid
+import datetime
+import pytz
 
 import tornado.web
 import tornado.websocket
@@ -67,10 +69,22 @@ class CreateChannelHandler(whatsup.core.BaseHandler):
 		user = self.current_user
 		ch_id = uuid.uuid4()
 		url = uuid_to_url(ch_id)
-		
+
+		length = int(length)
+		hour = ''.join([dmy, " ", hour])
+		dmy = ''.join([dmy, " ", "00:00"])
+		datetime_dmy = datetime.datetime.strptime(dmy, '%Y-%m-%d %H:%M')
+		datetime_start = datetime.datetime.strptime(hour, '%Y-%m-%d %H:%M')
+
+		utc = pytz.timezone('UTC')
+		datetime_dmy = utc.localize(datetime_dmy)
+		datetime_start = utc.localize(datetime_start)
+
+		print datetime_dmy
+		print datetime_start
+
 		#timestamp will just use cassandra getdate(now())
 		# Need to insert into all channel column families, see: db_sechma for columns
-
-		yield gen.Task(create_channel.apply_async, args=[title, tag, length, dmy, hour, user, ch_id, url])
+		yield gen.Task(create_channel.apply_async, args=[title, tag, length, datetime_dmy, datetime_start, user, ch_id, url])
 
 		self.redirect("/ch/%s" % url)

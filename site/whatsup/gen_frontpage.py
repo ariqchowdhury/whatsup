@@ -18,7 +18,7 @@ if __name__ == "__main__":
 	today = datetime.datetime.now()
 	# today.strftime("%Y-%m-%d")
 
-	rows = generate_frontpage.delay('2014-01-17')
+	rows = generate_frontpage.delay(datetime.datetime(2014, 1, 17, 8))
 	flist = rows.get()
 
 	system("redis-cli KEYS 'featured:*' | xargs redis-cli DEL")
