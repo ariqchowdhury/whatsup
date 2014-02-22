@@ -166,9 +166,11 @@ public class WhatsupSocket extends BaseWebSocketHandler {
 		String user = (String) jsonObject.get("user");
 		String comment_id = UUID.randomUUID().toString();
 		long ms = System.currentTimeMillis();
+
+		String sanitized_msg = SanitizeMessage(msg);
 						
 		JSONObject outgoing_message = new JSONObject();
-		outgoing_message.put("msg", msg);
+		outgoing_message.put("msg", sanitized_msg);
 		outgoing_message.put("user", user);
 		outgoing_message.put("ts", ms);
 		outgoing_message.put("comment_id", comment_id);
@@ -177,7 +179,6 @@ public class WhatsupSocket extends BaseWebSocketHandler {
 				
 		ParaBroadcastMsg(json_outgoing_message, src);
 		
-		String sanitized_msg = SanitizeMessage(msg);
 		WriteCommentToDatabase(user, sanitized_msg, src, comment_id);
 	}
 
@@ -205,10 +206,12 @@ public class WhatsupSocket extends BaseWebSocketHandler {
 		String msg = (String) jsonObject.get("msg");
 		String reply_id = UUID.randomUUID().toString();
 		long ms = System.currentTimeMillis();
+
+		String sanitized_msg = SanitizeMessage(msg);
 						
 		JSONObject outgoing_message = new JSONObject();
 		outgoing_message.put("reply_to", comment_id);
-		outgoing_message.put("msg", msg);
+		outgoing_message.put("msg", sanitized_msg);
 		outgoing_message.put("user", user);
 		outgoing_message.put("ts", ms);
 		outgoing_message.put("reply_id", reply_id);
@@ -216,7 +219,6 @@ public class WhatsupSocket extends BaseWebSocketHandler {
 		final String json_outgoing_message = outgoing_message.toJSONString();
 		ParaBroadcastMsg(json_outgoing_message, src);
 
-		String sanitized_msg = SanitizeMessage(msg);
 		WriteReplyToDatabase(user, sanitized_msg, src, comment_id, reply_id);
 	}
 
@@ -349,7 +351,6 @@ public class WhatsupSocket extends BaseWebSocketHandler {
 
 	private String SanitizeMessage(String unclean_msg) {
 		String clean_msg = Jsoup.clean(unclean_msg, Whitelist.none());
-		clean_msg = "\'" + clean_msg + "\'";
 
 		return clean_msg;
 	}
