@@ -12,6 +12,7 @@ import whatsup.core
 
 PATH_TO_SITE = "../"
 CHANNEL_PAGE = "channel.html"
+CREATE_PAGE = "create.html"
 
 channel_client_hash = {}
 decode = DecodeGetChannelTitleFromId
@@ -88,3 +89,10 @@ class CreateChannelHandler(whatsup.core.BaseHandler):
 		yield gen.Task(create_channel.apply_async, args=[title, tag, length, datetime_dmy, datetime_start, user, ch_id, url])
 
 		self.redirect("/ch/%s" % url)
+
+class Create(whatsup.core.BaseHandler):
+	@tornado.web.asynchronous
+	@gen.coroutine
+	def get(self):
+		logged_in = True if self.current_user else False
+		self.render(PATH_TO_SITE+CREATE_PAGE, logged_in=logged_in)

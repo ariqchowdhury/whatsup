@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Whatsup</title>
+		<link rel="stylesheet" type="text/css" href="{{ static_url("css/bootstrap.min.css") }}"/>
+		<link rel="stylesheet" type="text/css" href="{{ static_url("css/navbar.css") }}"/>
+		<link rel="stylesheet" type="text/css" href="{{ static_url("css/datepicker.css") }}"/>
+		<script type="text/javascript" src="{{ static_url("js/clock.js") }}"></script>
+	</head>
+
+	<body onload="startTime()">
+		{% include "../header.html" %}
+
+		<div class="col-md-offset-3 col-md-6 panel panel-default">
+			<div class="panel-body">
+				<form  action="/CreateChannel" method="post" role="form">
+					<div class="form-group">
+						<input class="form-control" type="text" name="title" placeholder="Title">
+					</div>
+					<div class="form-group">
+						<textarea class="form-control" name="short_description" placeholder="Short Description" cols=40></textarea>
+					</div>
+					<div class="form-group">
+						<textarea class="form-control" name="long_description" placeholder="Longer Description" cols=40 rows=5></textarea>
+					</div>
+					<div class="form-group">
+						<div class="input-group">
+							<input class="form-control" type="text" name="tag" placeholder="tag">
+						</div>
+					</div>
+					<div class="form-group">
+						<select name="length">
+							{% for i in range(1,9) %}
+							<option value="{{i}}">{{i}} hour(s)</option>
+							{% end %}		
+						</select>
+					</div>
+					<div class="form-group">
+						<input type="text" name="start_date" id="start_date" placeholder="yyyy-mm-dd">
+					</div>
+					<div class="form-group">
+						<select name="hour" id="hour dropdown">
+							{% for i in range(0,24) %}
+							<option value="{{i}}:00">{{i}}:00</option>
+							{% end %}
+						</select>		
+					</div>
+					<button class="btn btn-danger" type="Submit" id="create_ch">Create</button>
+					{% module xsrf_form_html() %}
+				</form>
+			</div>
+		</div>
+
+
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+		<script type="text/javascript" src="{{ static_url("js/home.js") }}"></script>
+		<script type="text/javascript" src="{{ static_url("js/bootstrap.min.js") }}"></script>
+		<script type="text/javascript" src="{{ static_url("js/bootstrap-datepicker.js") }}"></script>
+	</body>
+</html>
