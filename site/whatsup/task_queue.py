@@ -94,24 +94,24 @@ def write_reply_to_db(user, msg, src, comment_id, parent_id):
 	create_channel.db.execute(p3.bind((parent_id_as_uuid, comment_id_as_uuid)))
 
 @app.task(base=DatabaseTask)
-def create_channel(title, tag, length, dmy, hour, user, ch_id, url):
+def create_channel(title, tag, length, dmy, hour, user, ch_id, url, ssub, lsub):
 
 	p1 = create_channel.db.prepare("""
-        INSERT INTO channels (id, dmy, start, ts, len, user, title, tag, url)
-        VALUES (?, ?, ?, dateof(now()), ?, ?, ?, ?, ?)
+        INSERT INTO channels (id, dmy, start, ts, len, user, title, tag, url, ssub, lsub)
+        VALUES (?, ?, ?, dateof(now()), ?, ?, ?, ?, ?, ?, ?)
 		""")
 
 	p2 = create_channel.db.prepare("""
-        INSERT INTO channels_by_id (id, dmy, start, ts, len, user, title, tag, url)
-        VALUES (?, ?, ?, dateof(now()), ?, ?, ?, ?, ?)
+        INSERT INTO channels_by_id (id, dmy, start, ts, len, user, title, tag, url, ssub, lsub)
+        VALUES (?, ?, ?, dateof(now()), ?, ?, ?, ?, ?, ?, ?)
 		""")
 
 	p3 = create_channel.db.prepare("""
         INSERT INTO user_channel_index (user, ch_id) VALUES (?, ?)
 		""")
 
-	create_channel.db.execute(p1.bind((ch_id, dmy, hour, length, user, title, tag, url)))
-	create_channel.db.execute(p2.bind((ch_id, dmy, hour, length, user, title, tag, url)))
+	create_channel.db.execute(p1.bind((ch_id, dmy, hour, length, user, title, tag, url, ssub, lsub)))
+	create_channel.db.execute(p2.bind((ch_id, dmy, hour, length, user, title, tag, url, ssub, lsub)))
 	create_channel.db.execute(p3.bind((user, ch_id)))
 
 

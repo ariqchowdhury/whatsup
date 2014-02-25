@@ -67,6 +67,8 @@ class CreateChannelHandler(whatsup.core.BaseHandler):
 		length = strip_markup(self.get_argument("length"))
 		dmy = strip_markup(self.get_argument("start_date"))
 		hour = strip_markup(self.get_argument("hour"))
+		ssub = strip_markup(self.get_argument("short_description"))
+		lsub = strip_markup(self.get_argument("long_description"))
 		user = self.current_user
 		ch_id = uuid.uuid4()
 		url = uuid_to_url(ch_id)
@@ -81,12 +83,9 @@ class CreateChannelHandler(whatsup.core.BaseHandler):
 		datetime_dmy = utc.localize(datetime_dmy)
 		datetime_start = utc.localize(datetime_start)
 
-		print datetime_dmy
-		print datetime_start
-
 		#timestamp will just use cassandra getdate(now())
 		# Need to insert into all channel column families, see: db_sechma for columns
-		yield gen.Task(create_channel.apply_async, args=[title, tag, length, datetime_dmy, datetime_start, user, ch_id, url])
+		yield gen.Task(create_channel.apply_async, args=[title, tag, length, datetime_dmy, datetime_start, user, ch_id, url, ssub, lsub])
 
 		self.redirect("/ch/%s" % url)
 
