@@ -7,7 +7,7 @@ import tornado.websocket
 from tornado import gen
 from htmllaundry import strip_markup
 
-from whatsup.task_queue import get_channel_title_from_id, DecodeGetChannelTitleFromId, create_channel
+from whatsup.task_queue import get_channel_info_from_id, DecodeGetChannelInfoFromId, create_channel
 import whatsup.core
 
 PATH_TO_SITE = "../"
@@ -15,7 +15,7 @@ CHANNEL_PAGE = "channel.html"
 CREATE_PAGE = "create.html"
 
 channel_client_hash = {}
-decode = DecodeGetChannelTitleFromId
+decode = DecodeGetChannelInfoFromId
 
 def uuid_to_url(ch_id):
 	return ch_id.bytes.encode('base_64').rstrip('=\n').replace('/', '_').replace('+', "-")
@@ -47,14 +47,16 @@ class ChannelHandler(whatsup.core.BaseHandler):
 			ch_id = url
 			rows = None
 		else:
-			response = yield gen.Task(get_channel_title_from_id.apply_async, args=[ch_id])
+			response = yield gen.Task(get_channel_info_from_id.apply_async, args=[ch_id])
 			rows = response.result
 
 		if not rows:
 			self.write("Channel does not exist")
 		else:
 			channel_title = rows[0][decode.title]
-			self.render(PATH_TO_SITE+CHANNEL_PAGE, channel_title=channel_title, logged_in=logged_in, ch_id=ch_id)
+			ssub = rows[0][decode.ssub]
+			lsub = rows[0][decode.lsub]
+			self.render(PATH_TO_SITE+CHANNEL_PAGE, channel_title=channel_title, logged_in=logged_in, ch_id=ch_id, ssub=ssub, lsub=lsub)
 
 
 # Create channels:

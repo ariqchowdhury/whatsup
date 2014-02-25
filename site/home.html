@@ -22,7 +22,7 @@
 						<a href={{ "ch/"+ch[decode.url]}} class="list-group-item link_for_channel">
 							<h4 class="list-group-item-heading channel_title">{{ ch[decode.title].replace("2014", "") }}</h4>
 							<span class="badge channel_start_time">{{ ch[decode.start] }} UTC</span>
-							<p class="list-group-item-text channel_description">DESCRIPTION</p>
+							<p class="list-group-item-text channel_description">{{ ch[decode.ssub] }}</p>
 							<span class="label label-danger channel_tag">#{{ch[decode.tag]}}</span>
 						</a>
 						{% end %}
@@ -68,7 +68,7 @@
 						<a href={{ "ch/"+ch[decode.url]}} class="list-group-item link_for_channel">
 							<h4 class="list-group-item-heading channel_title">{{ ch[decode.title].replace("2014", "") }}</h4>
 							<span class="badge channel_start_time">{{ ch[decode.start] }} UTC</span>
-							<p class="list-group-item-text channel_description">DESCRIPTION</p>
+							<p class="list-group-item-text channel_description">{{ ch[decode.ssub] }}</p>
 							<span class="label label-danger channel_tag">#{{ch[decode.tag]}}</span>
 						</a>
 						{% end %}

@@ -29,6 +29,7 @@ if __name__ == "__main__":
 		r.set("featured:%s:start" % i, "%s" % item[decode.start].time())
 		r.set("featured:%s:url" % i, "%s" % item[decode.url])
 		r.set("featured:%s:dmy" % i, "%s" % item[decode.dmy])
+		r.set("featured:%s:ssub" % i, "%s" % item[decode.ssub])
 
 
 

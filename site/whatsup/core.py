@@ -41,6 +41,7 @@ class HomeHandler(BaseHandler):
 			channel.append(self.redis.get("featured:%s:start" % i))
 			channel.append(self.redis.get("featured:%s:url" % i))
 			channel.append(self.redis.get("featured:%s:dmy" % i))
+			channel.append(self.redis.get("featured:%s:ssub" % i))
 			self._featured_list.append(channel)
 			self._all_list.append(channel)
 

@@ -9,13 +9,13 @@ from whatsup.password import pwd_context
 
 # Enums for the order of objects in rows
 class DecodeGenerateFrontpage:
-	title, tag, start, url, dmy = range(5)
+	title, tag, start, url, dmy, ssub = range(6)
 
 class DecodeGetHashedPswd:
 	salt, pswd = range(2)
 
-class DecodeGetChannelTitleFromId:
-	title = 0
+class DecodeGetChannelInfoFromId:
+	title, ssub, lsub = range(3)
 
 # Cassandra settings
 KEYSPACE = "whatsup_dev"
@@ -117,7 +117,7 @@ def create_channel(title, tag, length, dmy, hour, user, ch_id, url, ssub, lsub):
 
 @app.task(base=DatabaseTask)
 def generate_frontpage(date):
-	p = generate_frontpage.db.prepare("SELECT title, tag, start, url, dmy FROM channels WHERE dmy=? ORDER BY start;")
+	p = generate_frontpage.db.prepare("SELECT title, tag, start, url, dmy, ssub FROM channels WHERE dmy=? ORDER BY start;")
 	rows = generate_frontpage.db.execute(p.bind((date,)))
 	return sanitize_cass_rows(rows)
 
@@ -147,8 +147,8 @@ def add_user(username, salt, hash, email):
 	add_user.db.execute(p.bind((username, salt, hash, email)))
 
 @app.task(base=DatabaseTask)
-def get_channel_title_from_id(ch_id):
-	p = get_channel_title_from_id.db.prepare("SELECT title from channels_by_id WHERE id=?")
-	rows = get_channel_title_from_id.db.execute(p.bind((ch_id,)))
+def get_channel_info_from_id(ch_id):
+	p = get_channel_info_from_id.db.prepare("SELECT title, ssub, lsub from channels_by_id WHERE id=?")
+	rows = get_channel_info_from_id.db.execute(p.bind((ch_id,)))
 	return sanitize_cass_rows(rows)
 
